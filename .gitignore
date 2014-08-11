@@ -1,0 +1,9 @@
+cache/
+data/
+log/
+config/
+public/track/
+.Thumbs
+.idea/
+config/default.*
+node_modules

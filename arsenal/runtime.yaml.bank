@@ -1,0 +1,7 @@
+Setting :
+  port : 3451
+  ali_callback_url : http://api.alimama.vn/crawl
+
+Redis :
+  host : 192.168.1.150
+  port: 6391
