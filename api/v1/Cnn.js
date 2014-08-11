@@ -4,6 +4,11 @@ function Cnn() {
     var self = this;
     this.getCrawlCnn = function(req, res) {
         var url = req.query.url;
+        
+        console.log(url);
+        res.end();
+        return;
+        
         if(url != null) {
             var Crawler = require('crawler').Crawler;
             self._crawler = new Crawler({
