@@ -1,0 +1,4 @@
+Simple crawl CNN page detail
+http://host:port/api/v1/Cnn/CrawlCnn?url={link page detail}
+
+Ex: http://107.170.100.135:1234/api/v1/Cnn/CrawlCnn?url=http://edition.cnn.com/2014/08/10/world/meast/iran-plane-crash/index.html
