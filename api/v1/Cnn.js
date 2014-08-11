@@ -13,7 +13,7 @@ function Cnn() {
             crawler.queue([{
                 'uri' : url,
                 'callback': function(error, result, $) {
-                    res.send(result);
+                    res.send(result.body);
                 }
             }]);
         } else {
