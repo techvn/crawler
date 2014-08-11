@@ -5,20 +5,17 @@ function Cnn() {
     this.getCrawlCnn = function(req, res) {
         var url = req.query.url;
         
-        console.log(url);
-        res.end();
-        return;
-        
         if(url != null) {
             var Crawler = require('crawler').Crawler;
-            self._crawler = new Crawler({
+            var crawler = new Crawler({
+                
+            });
+            crawler.queue([{
                 'uri' : url,
-                "timeout" : 30000, //30s
-                "jQuery" : false,
                 'callback': function(error, result, $) {
                     res.send(result);
                 }
-            });
+            }]);
         } else {
             res.send('crawl error!');
         }
