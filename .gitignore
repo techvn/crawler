@@ -7,3 +7,4 @@ public/track/
 .idea/
 config/default.*
 node_modules
+npm_debug.log
