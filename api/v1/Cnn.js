@@ -20,6 +20,9 @@ function Cnn() {
             res.send('crawl error!');
         }
     }
+
+    // Test connect mysql
+
 }
 
 exports.Cnn = new Cnn();

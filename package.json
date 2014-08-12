@@ -20,6 +20,7 @@
         "sleep" : "*",
         "winston" : "0.7.x",
         "memory-cache" : "0.x",
-        "mongojs" : "0.9.11"
+        "mongojs" : "0.9.11",
+        "mysql" : "2.4.2"
     }
 }
