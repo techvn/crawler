@@ -97,7 +97,7 @@ var Utils = function () {
     }
 }
 
-var today = new Date();
+/*var today = new Date();
 var logger = new (winston.Logger)({
     transports: [
         new (winston.transports.Console)({ level: 'debug' }),
@@ -107,10 +107,10 @@ var logger = new (winston.Logger)({
         new (winston.transports.Console)({ level: 'debug' }),
         new (winston.transports.File)({ level: 'info', filename: global.ROOT_PATH + '/' + SETTING.log_dir +'/err_' +today.getFullYear()+'_'+today.getMonth()+'_'+today.getDate() +'.log' })
     ]
-});
+});*/
+//exports.Logger = logger;
 
 exports.Utils = new Utils();
-exports.Logger = logger;
 exports.getDateDbString = function(date) {
     if (!date) {
         date = new Date();
