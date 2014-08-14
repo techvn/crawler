@@ -16,8 +16,8 @@ function Cnn() {
                     var title = $("#cnnContentContainer h1")[0].textContent;
                     var author = $("#cnnContentContainer .cnn_stryathrtmp .cnnByline strong")[0].textContent;
                     var date = Date($("#cnnContentContainer .cnn_stryathrtmp .cnn_strytmstmp")[0].textContent);
-                    var body = $("#cnnContentContainer p") 
-                    var image = $("#cnnContentContainer .cnnArticleGalleryPhotoContainer") 
+                    var body = $("#cnnContentContainer p")
+                    var image = $("#cnnContentContainer .cnnArticleGalleryPhotoContainer")
                     res.json({
                         title: title,
                         author: author,
