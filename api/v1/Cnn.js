@@ -17,12 +17,13 @@ function Cnn() {
                     var author = $("#cnnContentContainer .cnn_stryathrtmp .cnnByline strong")[0].textContent;
                     var date = Date($("#cnnContentContainer .cnn_stryathrtmp .cnn_strytmstmp")[0].textContent);
                     var body = $("#cnnContentContainer p")
-                    var image = $("#cnnContentContainer .cnnArticleGalleryPhotoContainer")
+                    var image = $("#cnnContentContainer .cnn_stryimg640captioned img").attr("src")
+                    
                     res.json({
                         title: title,
                         author: author,
                         date: date,
-                        body: body,
+                        body: $('<div>').append(body).html(),
                         image: image
                     });
                 }
