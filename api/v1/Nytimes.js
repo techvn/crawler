@@ -4,6 +4,8 @@ function nytimes() {
     var self = this;
     this.getCrawlNytimes = function(req, res) {
         var url = req.query.url;
+        /*console.log(url);
+        res.send(url); return;*/
         
         if(url != null) {
             var Crawler = require('crawler').Crawler;

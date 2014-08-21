@@ -66,7 +66,8 @@ var CnnHtmlParse = function () {
                         } catch (e) {
                             console.log(e);
                         }
-                        cnnModel.content = des;
+                        cnnModel.content = des.replace(/<(?:.|\n)*?>/gm, ''); // Remove all html tag
+
                         var publish = '';
                         if ($('div.cnn_strytmstmp').length > 0) {
                             publish = $('div.cnn_strytmstmp').html();

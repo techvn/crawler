@@ -78,19 +78,23 @@ function Test() {
         });
         connection.connect();
 
-        var sql = "SELECT * FROM `news` ORDER BY `id` DESC LIMIT 50";
+        var sql = "SELECT `id`, `title`, `brief`, `main_img`, `created_time`, `author` FROM `news` ORDER BY `id` DESC LIMIT 50";
         if (keyword != '' & keyword != null) {
             // Search by keyword
-            sql = "SELECT * FROM `news` WHERE (`title` LIKE '%" + escape(keyword) + "%' OR `description` LIKE '%"
-                + escape(keyword) + "%') " + (cat != null & cat != '' ? " AND `cat_id`=" + parseInt(cat) : "")+" ORDER BY `id` DESC LIMIT 50";
+            sql = "SELECT `id`, `title`, `brief`, `main_img`, `created_time`, `author` FROM `news` " +
+                "WHERE (`title` LIKE '%" + escape(keyword) + "%' OR `description` LIKE '%"
+                + escape(keyword) + "%') " + (cat != null & cat != '' ? " AND `cat_id`=" + parseInt(cat) : "")
+                +" ORDER BY `id` DESC LIMIT 50";
         } else if((title != null & title != '') || (des != null & des != '')) {
             // Select by title and des
-            sql = "SELECT * FROM `news` WHERE 1=1 " + (title!=null? " AND `title` LIKE '%" + escape(title) +"%'" : '')
+            sql = "SELECT `id`, `title`, `brief`, `main_img`, `created_time`, `author` " +
+                "FROM `news` WHERE 1=1 " + (title!=null? " AND `title` LIKE '%" + escape(title) +"%'" : '')
                 + (des != null ? " AND `des` LIKE '%" + escape(des) + "%'" : "")
                 + (cat != null & cat != '' ? " AND `cat_id`=" + parseInt(cat) : "") + " ORDER BY `id` DESC LIMIT 50";
         } else if(cat != null & cat != '') {
             // Select by cat
-            sql = "SELECT * FROM `news` WHERE 1=1 AND `cat_id`=" + parseInt(cat) + " ORDER BY `id` DESC LIMIT 50";
+            sql = "SELECT `id`, `title`, `brief`, `main_img`, `created_time`, `author` FROM `news` " +
+                "WHERE 1=1 AND `cat_id`=" + parseInt(cat) + " ORDER BY `id` DESC LIMIT 50";
         }
 
         connection.query(sql, function (err, rows, fields) {
@@ -98,7 +102,6 @@ function Test() {
                 var data = [];
                 for(var i =0; i < rows.length; i++) {
                     rows[i]['title'] = unescape(rows[i]['title']);
-                    rows[i]['description'] = unescape(rows[i]['description']);
                     data[i] = rows[i];
                 }
                 res.json(data);
@@ -126,20 +129,44 @@ function Test() {
         })
     }
 
+    /**
+     * Get detail
+     * @param req
+     * @param res
+     */
+    self.getNewsDetail = function(req, res) {
+        var id = req.query.id || 0;
+        var connection = utils.getMySql();
+        var sql = "SELECT * FROM `news` WHERE `id` = " + id + " AND `status` = 1";
+        connection.query(sql, function(err, rows, fields) {
+            res.json(err || rows);
+        });
+    }
+
+    self.getCategoryMap = function(req, res) {
+        // Load list categories of destination
+        var connection = utils.getMySql();
+        var sql = "SELECT * FROM `categories_map` WHERE `enabled` = 1";
+        connection.query(sql, function(err, rows, fields) {
+            if(!err) {
+                for(var i = 0; i < rows.length; i++) {
+
+                }
+            }
+        });
+        connection.end();
+    }
+
     // --------- Private function
     /**
      * Save data to database
      * @param data Array[title, img, brief, contents, author, publish, link
      */
     self.saveToDb = function (data) {
-        var mysql = require('mysql');
-        var connection = mysql.createConnection({
-            "host": "localhost",
-            "user": "root",
-            "password": "vertrigo",
-            'database': "reporttube"
-        });
-        connection.connect();
+
+        utils.save(data);
+
+        /*var connection = utils.getMySql();
 
         // Interaction with db
         // do something ...
@@ -163,9 +190,33 @@ function Test() {
                 });
             }
             connection.end();
-        });
+        });*/
+    }
 
+    self.crawlByCategory = function(url, cat) {
 
+        if (url.indexOf('edition.cnn.com') > 0) {
+            cnnHtmlParse.CategoryScraper(url, function (links, err) {
+                if (links.length > 0) {
+                    for (var i = 0; i < links.length; i++) {
+                        if (links[i] == null) continue;
+                        cnnHtmlParse.NewsScraper(links[i], function (data, err) {
+                            if (err != null) {
+                                console.log(err);
+                                return;
+                            }
+                            // Normalize data
+                            data['cid'] = cat;
+                            self.saveToDb(data);
+                        }, cnnModel.Cnn());
+                    }
+                } else {
+                    console.log(err);
+                }
+            });
+        } else {
+            console.log('CNN category is invalid url!');
+        }
     }
 
     /**
@@ -174,13 +225,9 @@ function Test() {
      * @param res
      */
     self.getConnectMySql = function (req, res) {
-        var mysql = require('mysql');
-        var connection = mysql.createConnection({
-            "host": "localhost",
-            "user": "root",
-            "password": "vertrigo",
-            'database': "reporttube"
-        });
+
+        var connection = utils.getMySql();
+
         connection.connect();
         connection.query('SELECT 1 + 1 AS solution', function (err, rows, fields) {
             if (err) throw err;

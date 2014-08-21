@@ -1,11 +1,13 @@
 var SETTING = require('config').Setting,
     REDIS = require('config').Redis,
-    winston = require('winston');
+    winston = require('winston'),
+    utils = this;
 var Utils = function () {
     var self = this;
 
     self._crawler = null;
     self._redis = null;
+    self._mySql = null;
 
     /**
      * @returns crawler.Crawler
@@ -16,11 +18,32 @@ var Utils = function () {
             var Crawler = require('crawler').Crawler;
             self._crawler = new Crawler({
                 "timeout" : 30000, //30s
-                "jQuery" : false
+                "jQuery" : false,
+                "headers":{
+                    "accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "accept-charset":"gbk;utf-8",
+                    "content-type":" text/html; charset=utf-8",
+                    "user-agent":'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:32.0) Gecko/20100101 Firefox/32.0'
+                }
             });
         }
 
         return self._crawler;
+    }
+
+    self.getMySql = function() {
+        var self = this;
+        if(null == self._mySql) {
+            var mysql = require('mysql');
+            self._mySql = mysql.createConnection({
+                "host": "localhost",
+                "user": "root",
+                "password": "vertrigo",
+                'database': "reporttube"
+            });
+            self._mySql.connect();
+        }
+        return self._mySql;
     }
 
     /**
@@ -93,6 +116,34 @@ var Utils = function () {
             } else {
                 fs.writeFile(dir + fileName, data, function(err) {});
             }
+        });
+    }
+
+    self.save = function(data) {
+        var connection = self.getMySql();
+
+        // Interaction with db
+        // do something ...
+        var date = this.getDateDbString();
+
+        var sql_select = "SELECT `id` FROM `news` WHERE `link_origin` = '" + data['link'] + "'";
+        connection.query(sql_select, function (err, rows, fields) {
+
+            // Check link crawl has existed
+            if (rows.length == 0 & !err) {
+                var sql = "INSERT INTO `news` (`title`, `brief`, `main_img`, `description`, `author`, `created_time`, " +
+                    "`cat_id`, `link_origin`, `crawled_time`, `status`) " +
+                    "VALUES('" + escape(data['title']) + "', '" + data['brief'] + "', '" + JSON.stringify(data['img']) + "', '" + escape(data['content'])
+                    + "', '" + data['author'] + "', '" + data['publish'] + "', '" + data['cid']
+                    + "','" + data['link'] + "', '" + date + "', 1) ";
+                connection.query(sql, function (err, rows, fields) {
+                    if (!err) {
+                        // Do something if error
+                        console.log('Insert link ' + data['link'] + ' success.');
+                    }
+                });
+            }
+            connection.end();
         });
     }
 }
