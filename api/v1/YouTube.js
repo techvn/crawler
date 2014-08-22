@@ -101,6 +101,17 @@ function YouTube() {
             }
         })
     }
+
+    self.getLast = function(req, res) {
+        var sql = "SELECT * FROM `news` WHERE `link_origin` LIKE '%youtube.com%' ORDER BY `crawled_time` DESC, `id` ASC LIMIT 1";
+        youTubeModel.youTubeModel.getUtils({'sql' : sql}, function(data, err) {
+            if (err) {
+                res.json(err);
+            } else {
+                res.json(data);
+            }
+        })
+    }
 }
 
 exports.YouTube = new YouTube();

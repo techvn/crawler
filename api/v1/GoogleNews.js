@@ -87,5 +87,15 @@ function GoogleNews() {
             }
         })
     }
+    self.getLast = function(req, res) {
+        var sql = "SELECT * FROM `news` WHERE (`video` = '' OR `video` = null ) ORDER BY `crawled_time` DESC, `id` ASC LIMIT 1";
+        googleNews.googleNewsModel.getUtils({'sql' : sql}, function(data, err) {
+            if (err) {
+                res.json(err);
+            } else {
+                res.json(data);
+            }
+        })
+    }
 }
 exports.GoogleNews = new GoogleNews();

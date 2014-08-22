@@ -66,6 +66,15 @@ function googleNewsModel() {
         utils.endMySql(conn);
     }
 
+    self.getUtils = function(sql, callback) {
+        var conn = utils.getMySql();
+        conn.query(sql, function(err, rows, fields) {
+            if(err) { err['sql'] = sql; }
+            callback(rows, err);
+        });
+        utils.endMySql(conn);
+    }
+
     self.insertNews = function (data) {
 
         var connection = utils.getMySql();
