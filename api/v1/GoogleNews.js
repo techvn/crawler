@@ -10,7 +10,7 @@ var utils = require('./../../utils/Utils').Utils,
 function GoogleNews() {
     var self = this;
 
-    self.getDetail = function(req, res) {
+    self.getCrawlDetail = function(req, res) {
         var url = req.query.url;
         if(url == null || url == '') {
             res.json({
@@ -24,7 +24,7 @@ function GoogleNews() {
         }, googleNews.GoogleNews());
     }
 
-    self.getList = function(req, res) {
+    self.getCrawlList = function(req, res) {
         // Last 24 hours, and sort by time
         // http://news.google.com/news?hl=vi&output=rss&q=ice+bucket+challenge&pz=1&cf=all&ned=vi_vn
         // http://news.google.com/news?hl=en&output=rss&q=ice+bucket+challenge&um=1&gl=us&authuser=0&ie=UTF-8
@@ -37,8 +37,19 @@ function GoogleNews() {
         }
         // Read page
         googleNewsHtmlParse.CategoryScraper(url, function(data) {
-
-            res.json(data);
+            /*res.json(data);
+            return;*/
+            googleNews = googleNews.googleNewsModel;
+            googleNews.insertMultiNews(data, function(sql, err) {
+                if(err) {
+                    res.json( {
+                        'sql' : sql,
+                        'err' : err
+                    });
+                } else {
+                    res.json(data);
+                }
+            });
             return;
 
             // data : [[googleNews : [img : '', author : '', title : '', brief : ''], url : ''], [...]]

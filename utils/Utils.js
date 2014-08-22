@@ -1,7 +1,7 @@
 var SETTING = require('config').Setting,
     REDIS = require('config').Redis,
-    winston = require('winston'),
-    utils = this;
+    winston = require('winston');
+
 var Utils = function () {
     var self = this;
 
@@ -44,6 +44,11 @@ var Utils = function () {
             self._mySql.connect();
         }
         return self._mySql;
+    }
+
+    self.endMySql = function(connection) {
+        self._mySql =  null;
+        connection.end();
     }
 
     /**
@@ -119,33 +124,6 @@ var Utils = function () {
         });
     }
 
-    self.save = function(data) {
-        var connection = self.getMySql();
-
-        // Interaction with db
-        // do something ...
-        var date = this.getDateDbString();
-
-        var sql_select = "SELECT `id` FROM `news` WHERE `link_origin` = '" + data['link'] + "'";
-        connection.query(sql_select, function (err, rows, fields) {
-
-            // Check link crawl has existed
-            if (rows.length == 0 & !err) {
-                var sql = "INSERT INTO `news` (`title`, `brief`, `main_img`, `description`, `author`, `created_time`, " +
-                    "`cat_id`, `link_origin`, `crawled_time`, `status`) " +
-                    "VALUES('" + escape(data['title']) + "', '" + data['brief'] + "', '" + JSON.stringify(data['img']) + "', '" + escape(data['content'])
-                    + "', '" + data['author'] + "', '" + data['publish'] + "', '" + data['cid']
-                    + "','" + data['link'] + "', '" + date + "', 1) ";
-                connection.query(sql, function (err, rows, fields) {
-                    if (!err) {
-                        // Do something if error
-                        console.log('Insert link ' + data['link'] + ' success.');
-                    }
-                });
-            }
-            connection.end();
-        });
-    }
 }
 
 /*var today = new Date();

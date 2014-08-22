@@ -7,20 +7,89 @@ var utils = require('./../../utils/Utils').Utils,
     youTubeModel = require('./../../model/YouTube'),
     setting = require('./../../setting');
 
-function youTube() {
+function YouTube() {
     var self = this;
 
-    self.getDetail = function(req, res) {
+    self.getCrawlDetail = function (req, res) {
         var url = req.query.url;
-        if(url == null || url == '') {
+        if (url == null || url == '') {
             res.json({
-                'err' : 'Url detail is invalided'
+                'err': 'Url detail is invalided'
             });
         }
 
         // Read page
-        youTubeHtmlParse.DetailScraper(url, function() {
-
+        youTubeHtmlParse.DetailScraper(url, function (data, err) {
+            res.send(data);
         }, youTubeModel.YouTube());
     }
+
+    self.getCrawlList = function (req, res) {
+        // Url: https://www.youtube.com/results?search_sort=video_date_uploaded&filters=today&search_query=ice+bucket+challenge
+        var url = req.query.url;
+        var cid = req.query.cid || 1;
+        if (url == null || url == '') {
+            res.json({
+                'err': 'Url detail is invalided'
+            });
+        }
+
+        youTubeHtmlParse.CategoryScraper(url, function (data) {
+            /*res.json(data);
+             return;*/
+            var result = {}, model = youTubeModel.youTubeModel;
+            for (var i = 0; i < Object.keys(data).length; i++) {
+                var youtube = data[i]; //youTubeModel.YouTube(data[i]);
+
+                youTubeHtmlParse.DetailScraper(youtube.link, function (data, err) {
+                    result[data.youtubeId] = data;
+                    // Save to database
+                    data['cid'] = cid;
+                    var model = youTubeModel.youTubeModel;
+                    //model.saveNews(data);
+                }, youtube);
+            }
+
+            var inc = 0;
+            var myTask = setInterval(function () {
+                inc++;
+                if (Object.keys(data).length == Object.keys(result).length || inc > 30) {
+                    // Max execute time
+                    if (typeof result['undefined'] != 'undefined') {
+                        delete result['undefined'];
+                    }
+                    // Insert to database
+                    model.insertMultiNews(result, function (sql, err) {
+                        if (err) {
+                            res.json({
+                                'sql': sql,
+                                'err': err
+                            });
+                        } else {
+                            res.json(result);
+                        }
+                    });
+
+                    clearInterval(myTask);
+                }
+            }, 1000);
+        });
+    }
+
+    // API
+    self.getList = function (req, res) {
+        var limit = req.query.limit || '0, 10',
+            kw = req.query.kw || '';
+        youTubeModel.youTubeModel.getList(
+            {'limit': limit, 'kw': kw }
+            , function (data, err) {
+                if (err) {
+                    res.json(err);
+                } else {
+                    res.json(data);
+                }
+            });
+    }
 }
+
+exports.YouTube = new YouTube();

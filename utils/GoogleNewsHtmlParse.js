@@ -63,7 +63,7 @@ var GoogleNewsHtmlParse = function () {
                         result[i - 10] = jsonXml[2][i];
                     }
 
-                    var data = [];
+                    var data = {};
                     var inc = 0;
                     for(var i = 0; i < result.length; i++) {
                         if(result[i].length <= 3 ) { continue; }
@@ -76,8 +76,9 @@ var GoogleNewsHtmlParse = function () {
                             if(result[i][j][0] == 'description') {
                                 $ = cheerio.load(result[i][j][1]);
                                 value = $('div.lh font').eq(2).text();
-                                data[inc]['img'] = $('table img').attr('src');
-                                console.log($('table img').attr('src'));
+                                data[inc]['author'] = $('div.lh font').eq(1).text();
+                                data[inc]['img'] = (typeof $('table img').attr('src') != 'undefined'
+                                    ? $('table img').attr('src') : "");
                             }
                             data[inc][result[i][j][0]] = value;
                         }

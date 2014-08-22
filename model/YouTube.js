@@ -1,8 +1,9 @@
 /**
  * Created by Administrator PC on 8/20/14.
  */
+var utils = require('./../utils/Utils').Utils;
 
-var YouTube = module.exports.YouTube = function(s) {
+var YouTube = module.exports.YouTube = function (s) {
     var s = s || {};
 
     this.title = s.title || '';
@@ -18,3 +19,94 @@ var YouTube = module.exports.YouTube = function(s) {
 
     return this;
 }
+
+function youTubeModel() {
+    var self = this;
+
+    self.getList = function(params, callback) {
+        var conn = utils.getMySql();
+
+        var sql = "SELECT `id`, `title`, `main_img`, `author`, `brief`, `created_time`, `crawled_time`, `video` FROM `news` WHERE 1=1";
+
+        var condition = '';
+        if(typeof params['kw'] != 'undefined' & params['kw'] != '') {
+            condition += " AND (`title` LIKE '%" + params['kw'] + "%' OR `brief` LIKE '%" + params['kw'] + "%' OR `description` LIKE '%" + params['kw'] + "%')"
+        }
+        sql += condition + " AND `link_origin` LIKE '%youtube.com%'";
+
+        var order = ' ORDER BY `crawled_time` DESC, `id` ASC';
+        sql += order;
+
+        var limit = '0, 10';
+        if(typeof params['limit'] != 'undefined') {
+            limit = params['limit'];
+        }
+
+        sql += ' LIMIT ' + limit;
+        conn.query(sql, function(err, rows, fields) {
+            if(err) {
+                err['sql'] = sql;
+            }
+            callback(rows, err);
+        });
+
+
+        utils.endMySql(conn);
+    }
+
+    self.insertNews = function (data) {
+
+        var connection = utils.getMySql();
+
+        // Interaction with db
+        // do something ...
+        var date = require('./../utils/Utils').getDateDbString();
+
+        var sql = "INSERT IGNORE INTO `news` (`title`, `brief`, `main_img`, `description`, `author`, `created_time`, "
+            + "`cat_id`, `viewed`, `video`, `link_origin`, `crawled_time`, `status`)"
+            + " values('" + escape(data['title']) + "', '" + escape(data['brief']) + "', '"
+            + JSON.stringify(data['img']) + "', '" + escape(data['content']) + "', '"
+            + data['author'] + "', '" + data['publish'] + "', '" + data['cid'] + "', '"
+            + data['viewed'] + "', '" + data['youtubeId'] + "','" + data['link'] + "', '" + date + "', 1)";
+
+        connection.query(sql, function (err, rows, fields) {
+            if (!err) {
+                // Do something if error
+                console.log('Insert link ' + data['link'] + ' success.');
+            } else
+                console.log(err);
+        });
+        //console.log(sql);
+
+        utils.endMySql(connection);
+    }
+
+    /**
+     * Insert multi rows by sql query
+     * @param obj: Array 2 dimension
+     */
+    self.insertMultiNews = function(obj, callback) {
+        var connection = utils.getMySql();
+
+        // Interaction with db
+        var date = require('./../utils/Utils').getDateDbString();
+
+        var value = '', comma = '';
+        for(var i in obj) {
+            var data = obj[i];
+            value += comma + "('" + escape(data['title']) + "', '" + escape(data['brief']) + "', '"
+                + JSON.stringify(data['img']) + "', '" + escape(data['content']) + "', '"
+                + data['author'] + "', '" + data['publish'] + "', '" + data['cid'] + "', '"
+                + data['viewed'] + "', '" + data['youtubeId'] + "','" + data['link'] + "', '" + date + "', 1)";
+            comma = ',';
+        }
+        var sql = "INSERT IGNORE INTO `news` (`title`, `brief`, `main_img`, `description`, `author`, `created_time`, "
+            + "`cat_id`, `viewed`, `video`, `link_origin`, `crawled_time`, `status`) values" + value;
+        connection.query(sql, function(err, rorws, field) {
+            callback(sql, err);
+        });
+        // End connection
+        utils.endMySql(connection);
+    }
+}
+exports.youTubeModel = new youTubeModel();

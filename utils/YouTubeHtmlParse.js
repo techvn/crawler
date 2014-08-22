@@ -18,7 +18,7 @@ var YouTubeHtmlParse = function () {
     self.DetailScraper = function (url, callback, s) {
 
         var crawler = utils.getCrawler();
-        youTube = youTube.YouTube(null);
+        var youtubeObj = s || {}; //youTube.YouTube(s);
         if(!url.match(/youtube.com/)) {
             callback('', 'Url not validate!'); return;
         }
@@ -29,13 +29,11 @@ var YouTubeHtmlParse = function () {
                 'callback': function (error, result, $) {
                     try {
                         $ = cheerio.load(result.body);
-
-
-                        callback(youTube, null);
-
+                        youtubeObj.content = $('#eow-description').html();
+                        callback(youtubeObj, null);
                     } catch (e) {
                         console.log(e);
-                        callback(youTube, e);
+                        callback(youtubeObj, e);
                     }
                 }
             }
@@ -50,12 +48,30 @@ var YouTubeHtmlParse = function () {
      */
     self.CategoryScraper = function (link, callback) {
         var crawler = utils.getCrawler();
-        youTube = youTube.YouTube(null);
         crawler.queue([
             {
                 'uri': link,
                 'callback': function (error, result, $) {
+                    $ = cheerio.load(result.body);
+                    var data = {};
 
+                    $('#results div.yt-lockup').each(function(index) {
+                        var obj = {};//youTube.YouTube(null);
+                        data[index] = {};
+                        obj.img = (typeof $(this).find('img').attr('data-thumb') != 'undefined') ?
+                            $(this).find('img').attr('data-thumb') : $(this).find('img').attr('src');
+                        obj.title = $(this).find('h3.yt-lockup-title').text();
+                        obj.author = $(this).find('.yt-lockup-meta-info b').text();
+                        obj.brief = $(this).find('div.yt-lockup-description').html();
+                        obj.publish = $(this).find('li').eq(1).text();
+                        obj.viewed = $(this).find('li').eq(2).text().replace(/[a-zA-Z\s]/g, '');
+                        obj.link = 'https://youtube.com' + $(this).find('h3.yt-lockup-title').find('a').attr('href');
+                        obj.youtubeId = $(this).find('h3.yt-lockup-title').find('a').attr('href').split('=')[1];
+
+                        data[index] = obj;
+                    });
+
+                    callback(data);
                 }
             }
         ]);
