@@ -90,6 +90,17 @@ function YouTube() {
                 }
             });
     }
+
+    self.getDetail = function(req, res) {
+        var id = req.query.id || 0;
+        youTubeModel.youTubeModel.getDetail({'id' : id}, function(data, err) {
+            if (err) {
+                res.json(err);
+            } else {
+                res.json(data);
+            }
+        })
+    }
 }
 
 exports.YouTube = new YouTube();

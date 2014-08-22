@@ -22,6 +22,49 @@ var GoogleNews = module.exports.GoogleNews = function(s) {
 
 function googleNewsModel() {
     var self = this;
+    /**
+     * Load list google news
+     * @param params
+     * @param callback
+     */
+    self.getList = function(params, callback) {
+        var conn = utils.getMySql();
+        var sql = "SELECT `id`, `title`, `main_img`, `author`, `brief`, `created_time`, `crawled_time` FROM `news` WHERE 1=1";
+        var condition = '';
+        if(typeof params['kw'] != 'undefined' & params['kw'] != '') {
+            condition += " AND (`title` LIKE '%" + params['kw'] + "%' OR `brief` LIKE '%" + params['kw'] + "%' OR `description` LIKE '%" + params['kw'] + "%')"
+        }
+        sql += condition + " AND (`video` = '' || `video` = null)";
+
+        var order = ' ORDER BY `crawled_time` DESC, `id` ASC';
+        sql += order;
+
+        var limit = '0, 10';
+        if(typeof params['limit'] != 'undefined') {
+            limit = params['limit'];
+        }
+        sql += ' LIMIT ' + limit;
+        conn.query(sql, function(err, rows, fields) {
+            if(err) { err['sql'] = sql; }
+            callback(rows, err);
+        });
+        utils.endMySql(conn);
+    }
+
+    /**
+     * Load detail google news
+     * @param params
+     * @param callback
+     */
+    self.getDetail = function(params, callback) {
+        var conn = utils.getMySql();
+        var sql = "SELECT * FROM `news` WHERE `id`=" + params['id'];
+        conn.query(sql, function(err, rows, fields) {
+            if(err) { err['sql'] = sql; }
+            callback(rows, err);
+        });
+        utils.endMySql(conn);
+    }
 
     self.insertNews = function (data) {
 

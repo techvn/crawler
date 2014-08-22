@@ -41,18 +41,29 @@ function youTubeModel() {
         if(typeof params['limit'] != 'undefined') {
             limit = params['limit'];
         }
-
         sql += ' LIMIT ' + limit;
         conn.query(sql, function(err, rows, fields) {
-            if(err) {
-                err['sql'] = sql;
-            }
+            if(err) { err['sql'] = sql; }
             callback(rows, err);
         });
-
-
         utils.endMySql(conn);
     }
+    /**
+     * Load detail google news
+     * @param params
+     * @param callback
+     */
+    self.getDetail = function(params, callback) {
+        var conn = utils.getMySql();
+        var sql = "SELECT * FROM `news` WHERE `id`=" + params['id'];
+        conn.query(sql, function(err, rows, fields) {
+            if(err) { err['sql'] = sql; }
+            callback(rows, err);
+        });
+        utils.endMySql(conn);
+    }
+
+    // -------------------
 
     self.insertNews = function (data) {
 

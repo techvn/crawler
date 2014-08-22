@@ -61,5 +61,31 @@ function GoogleNews() {
             }
         });
     }
+
+    // API
+    self.getList = function (req, res) {
+        var limit = req.query.limit || '0, 10',
+            kw = req.query.kw || '';
+        googleNews.googleNewsModel.getList(
+            {'limit': limit, 'kw': kw }
+            , function (data, err) {
+                if (err) {
+                    res.json(err);
+                } else {
+                    res.json(data);
+                }
+            });
+    }
+
+    self.getDetail = function(req, res) {
+        var id = req.query.id || 0;
+        googleNews.googleNewsModel.getDetail({'id' : id}, function(data, err) {
+            if (err) {
+                res.json(err);
+            } else {
+                res.json(data);
+            }
+        })
+    }
 }
 exports.GoogleNews = new GoogleNews();
