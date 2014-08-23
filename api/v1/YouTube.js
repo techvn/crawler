@@ -5,7 +5,8 @@
 var utils = require('./../../utils/Utils').Utils,
     youTubeHtmlParse = require('./../../utils/YouTubeHtmlParse').YouTubeHtmlParse,
     youTubeModel = require('./../../model/YouTube'),
-    setting = require('./../../setting');
+    setting = require('./../../setting'),
+    cheerio = require('cheerio');
 
 function YouTube() {
     var self = this;
@@ -132,6 +133,41 @@ function YouTube() {
                 res.json(d);
             }
         })
+    }
+
+    self.getSearch = function(req, res) {
+        var kw = req.query.kw || '',
+            youTubeUrl = 'https://www.youtube.com/results?search_query=' + kw,
+            youTubeApi = 'https://gdata.youtube.com/feeds/api/videos/',
+            result = {};
+        youTubeHtmlParse.CategoryScraper(youTubeUrl, function (data) {
+            for(var i = 0; i < Object.keys(data).length; i++) {
+                var crawler = utils.getCrawler();
+                crawler.queue([{
+                    uri : youTubeApi + data[i].youtubeId + '?v=2&alt=jsonc',
+                    callback: function(err, __result, $) {
+                        try {
+                            var data = JSON.parse(__result.body);
+                            console.log(data.data.id);
+                            result[data.data.id] = data.data;
+                        } catch(e) {
+                            var d = new Date();
+                            result[d.getTime()] = e;
+                        }
+                        //result[Math.random()]
+                    }
+                }]);
+            }
+
+            var inc = 0;
+            var myTime = setInterval(function() {
+                if(Object.keys(data).length == Object.keys(result).length || inc > 15) {
+                    clearInterval(myTime);
+                    res.json(result);
+                }
+                inc++;
+            }, 1000);
+        });
     }
 }
 
