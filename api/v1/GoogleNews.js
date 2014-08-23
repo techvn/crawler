@@ -72,7 +72,7 @@ function GoogleNews() {
                 if (err) {
                     res.json(err);
                 } else {
-                    res.json(data);
+                    res.send(data);
                 }
             });
     }

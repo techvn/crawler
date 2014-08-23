@@ -29,7 +29,7 @@ function googleNewsModel() {
      */
     self.getList = function(params, callback) {
         var conn = utils.getMySql();
-        var sql = "SELECT `id`, `title`, `main_img`, `author`, `brief`, `created_time`, `crawled_time` FROM `news` WHERE 1=1";
+        var sql = "SELECT `id`, `title`, `main_img`, `author`, `brief`, `created_time`, `crawled_time`, `link_origin` FROM `news` WHERE 1=1";
         var condition = '';
         if(typeof params['kw'] != 'undefined' & params['kw'] != '') {
             condition += " AND (`title` LIKE '%" + params['kw'] + "%' OR `brief` LIKE '%" + params['kw'] + "%' OR `description` LIKE '%" + params['kw'] + "%')"
