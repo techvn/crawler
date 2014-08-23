@@ -19,8 +19,9 @@ var YouTubeHtmlParse = function () {
 
         var crawler = utils.getCrawler();
         var youtubeObj = s || {}; //youTube.YouTube(s);
-        if(!url.match(/youtube.com/)) {
-            callback('', 'Url not validate!'); return;
+        if (!url.match(/youtube.com/)) {
+            callback('', 'Url not validate!');
+            return;
         }
 
         crawler.queue([
@@ -55,7 +56,7 @@ var YouTubeHtmlParse = function () {
                     $ = cheerio.load(result.body);
                     var data = {};
 
-                    $('#results div.yt-lockup').each(function(index) {
+                    $('#results div.yt-lockup').each(function (index) {
                         var obj = {};//youTube.YouTube(null);
                         data[index] = {};
                         obj.img = (typeof $(this).find('img').attr('data-thumb') != 'undefined') ?
@@ -77,26 +78,29 @@ var YouTubeHtmlParse = function () {
         ]);
     }
 
-    self.ParseDetailApi = function(link, callback, obj) {
+    self.ParseDetailApi = function (link, callback, obj) {
         var crawler = utils.getCrawler(),
             result = obj || {};
-        crawler.queue([{
-            uri : link,
-            callback: function(err, __result, $) {
-                try {
-                    var data = JSON.parse(__result.body);
-                    //result[data.data.id] = data.data;
-                    result.publish = data.data.updated.substr(0, 19).replace('T', ' ');
-                    result.description = data.data.description;
-                    result.thumb = data.data.thumbnail.sqDefault;
-                    result.img = data.data.thumbnail.hqDefault;
-                } catch(e) {
-                    var d = new Date();
-                    result[d.getTime()] = e;
+        crawler.queue([
+            {
+                uri: link,
+                callback: function (err, __result, $) {
+                    try {
+                        var data = JSON.parse(__result.body);
+                        //result[data.data.id] = data.data;
+                        var dateString = data.data.updated.substr(0, 19).replace('T', ' ');
+                        result.publish = dateString;
+                        result.description = data.data.description;
+                        result.thumb = data.data.thumbnail.sqDefault;
+                        result.img = data.data.thumbnail.hqDefault;
+                    } catch (e) {
+                        var d = new Date();
+                        result[d.getTime()] = e;
+                    }
+                    callback(result);
                 }
-                callback(result);
             }
-        }]);
+        ]);
     }
 }
 
