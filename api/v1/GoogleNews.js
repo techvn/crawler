@@ -72,7 +72,7 @@ function GoogleNews() {
                 if (err) {
                     res.json(err);
                 } else {
-                    var d = {};
+                    var d = [];
                     for(var o in data) {
                         data[o].img = (data[o].img);
                         data[o].title = unescape(data[o].title);
@@ -90,7 +90,7 @@ function GoogleNews() {
             if (err) {
                 res.json(err);
             } else {
-                var d = {};
+                var d = [];
                 for(var o in data) {
                     data[o].img = (data[o].img);
                     data[o].title = unescape(data[o].title);
@@ -107,7 +107,7 @@ function GoogleNews() {
             if (err) {
                 res.json(err);
             } else {
-                var d = {};
+                var d = [];
                 for(var o in data) {
                     data[o].img = (data[o].img);
                     data[o].title = unescape(data[o].title);
