@@ -85,7 +85,7 @@ function youTubeModel() {
         var sql = "INSERT IGNORE INTO `news` (`title`, `brief`, `main_img`, `description`, `author`, `created_time`, "
             + "`cat_id`, `viewed`, `video`, `link_origin`, `crawled_time`, `status`)"
             + " values('" + escape(data['title']) + "', '" + escape(data['brief']) + "', '"
-            + JSON.stringify(data['img']) + "', '" + escape(data['content']) + "', '"
+            + data['img'] + "', '" + escape(data['content']) + "', '"
             + data['author'] + "', '" + data['publish'] + "', '" + data['cid'] + "', '"
             + data['viewed'] + "', '" + data['youtubeId'] + "','" + data['link'] + "', '" + date + "', 1)";
 
@@ -115,7 +115,7 @@ function youTubeModel() {
         for(var i in obj) {
             var data = obj[i];
             value += comma + "('" + escape(data['title']) + "', '" + escape(data['brief']) + "', '"
-                + JSON.stringify(data['img']) + "', '" + escape(data['content']) + "', '"
+                + data['img'] + "', '" + escape(data['content']) + "', '"
                 + data['author'] + "', '" + data['publish'] + "', '" + data['cid'] + "', '"
                 + data['viewed'] + "', '" + data['youtubeId'] + "','" + data['link'] + "', '" + date + "', 1)";
             comma = ',';

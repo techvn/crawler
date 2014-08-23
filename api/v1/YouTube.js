@@ -86,7 +86,14 @@ function YouTube() {
                 if (err) {
                     res.json(err);
                 } else {
-                    res.json(data);
+                    var d = {};
+                    for(var o in data) {
+                        data[o].img = (data[o].img);
+                        data[o].title = unescape(data[o].title);
+                        data[o].brief = unescape(data[o].brief);
+                        d[o] = data[o];
+                    }
+                    res.json(d);
                 }
             });
     }
@@ -97,7 +104,14 @@ function YouTube() {
             if (err) {
                 res.json(err);
             } else {
-                res.json(data);
+                var d = {};
+                for(var o in data) {
+                    data[o].img = (data[o].img);
+                    data[o].title = unescape(data[o].title);
+                    data[o].brief = unescape(data[o].brief);
+                    d[o] = data[o];
+                }
+                res.json(d);
             }
         })
     }
@@ -108,7 +122,14 @@ function YouTube() {
             if (err) {
                 res.json(err);
             } else {
-                res.json(data);
+                var d = {};
+                for(var o in data) {
+                    data[o].img = (data[o].img);
+                    data[o].title = unescape(data[o].title);
+                    data[o].brief = unescape(data[o].brief);
+                    d[o] = data[o];
+                }
+                res.json(d);
             }
         })
     }

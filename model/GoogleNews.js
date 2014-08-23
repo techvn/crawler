@@ -86,7 +86,7 @@ function googleNewsModel() {
         var sql = "INSERT IGNORE INTO `news` (`title`, `brief`, `main_img`, `description`, `author`, `created_time`, "
             + "`cat_id`, `link_origin`, `crawled_time`, `status`)"
             + " values('" + escape(data['title']) + "', '" + escape(data['description']) + "', '"
-            + JSON.stringify(data['img']) + "', '" + escape(data['description']) + "', '"
+            + data['img'] + "', '" + escape(data['description']) + "', '"
             + (typeof data['author'] != 'undefined' ? data['author'] : "")  + "', '" + data['pubDate'] + "', '" + data['cid'] + "', '"
             + data['link'] + "', '" + date + "', 1)";
 
@@ -116,7 +116,7 @@ function googleNewsModel() {
         for(var i in obj) {
             var data = obj[i];
             value += comma + "('" + escape(data['title']) + "', '" + escape(data['description']) + "', '"
-                + JSON.stringify(data['img']) + "', '" + escape(data['description']) + "', '"
+                + data['img'] + "', '" + escape(data['description']) + "', '"
                 + (typeof data['author'] != 'undefined' ? data['author'] : "") + "', '" + data['pubDate'] + "', '" + data['cid'] + "', '"
                 + data['link'] + "', '" + date + "', 1)";
             comma = ',';
