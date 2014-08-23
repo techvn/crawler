@@ -76,6 +76,28 @@ var YouTubeHtmlParse = function () {
             }
         ]);
     }
+
+    self.ParseDetailApi = function(link, callback, obj) {
+        var crawler = utils.getCrawler(),
+            result = obj || {};
+        crawler.queue([{
+            uri : link,
+            callback: function(err, __result, $) {
+                try {
+                    var data = JSON.parse(__result.body);
+                    //result[data.data.id] = data.data;
+                    result.publish = data.data.updated.substr(0, 19).replace('T', ' ');
+                    result.description = data.data.description;
+                    result.thumb = data.data.thumbnail.sqDefault;
+                    result.img = data.data.thumbnail.hqDefault;
+                } catch(e) {
+                    var d = new Date();
+                    result[d.getTime()] = e;
+                }
+                callback(result);
+            }
+        }]);
+    }
 }
 
 exports.YouTubeHtmlParse = new YouTubeHtmlParse();

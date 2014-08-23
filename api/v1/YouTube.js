@@ -38,17 +38,22 @@ function YouTube() {
         youTubeHtmlParse.CategoryScraper(url, function (data) {
             /*res.json(data);
              return;*/
-            var result = {}, model = youTubeModel.youTubeModel;
+            var result = {},
+                model = youTubeModel.youTubeModel,
+                youTubeApi = 'https://gdata.youtube.com/feeds/api/videos/';
             for (var i = 0; i < Object.keys(data).length; i++) {
                 var youtube = data[i]; //youTubeModel.YouTube(data[i]);
 
-                youTubeHtmlParse.DetailScraper(youtube.link, function (data, err) {
+                /*youTubeHtmlParse.DetailScraper(youtube.link, function (data, err) {
                     result[data.youtubeId] = data;
                     // Save to database
                     data['cid'] = cid;
                     var model = youTubeModel.youTubeModel;
                     //model.saveNews(data);
-                }, youtube);
+                }, youtube);*/
+                youTubeHtmlParse.ParseDetailApi(youTubeApi + data[i].youtubeId + '?v=2&alt=jsonc', function(data) {
+                    result[data.youtubeId] = data;
+                }, data[i]);
             }
 
             var inc = 0;
@@ -75,6 +80,37 @@ function YouTube() {
                 }
             }, 1000);
         });
+    }
+
+    self.getUpdateData = function(req, res) {
+        // Read data in database
+        var data = youTubeModel.youTubeModel.getUtils("SELECT `video` FROM `news` WHERE `video` != ''", function(rows, err) {
+            var sql = '', comma = '';
+            var inc = 0;
+            var youTubeApi = 'https://gdata.youtube.com/feeds/api/videos/';
+            for(var o in rows) {
+                youTubeHtmlParse.ParseDetailApi(youTubeApi + rows[0].video + '?v=2&alt=jsonc', function(data) {
+                    /*
+                    sql += comma + "UPDATE `news` SET `publish`='" + data.publish + "', `thumb`='" + data.thumb + "', `main_img`='" + data.img + "' WHERE `video`='" + data.video + "'";
+                    comma = ',';*/
+                    inc++;
+                    sql = "UPDATE `news` SET `created_time`='" + data.publish + "', `thumb`='" + data.thumb + "', `main_img`='" + data.img + "' WHERE `video`='" + data.video + "'";
+                    youTubeModel.youTubeModel.getUtils(sql, function(rows, err) {
+                        if(err) throw err;
+                    });
+                }, rows[o]);
+            }
+            var myTimer = setInterval(function() {
+                if(inc == Object.keys(rows).length) {
+                    clearInterval(myTimer);
+                    /*youTubeModel.youTubeModel.getUtils(sql, function(rows, err) {
+                        res.send(err || sql);
+                    });*/
+                    res.json({'result' : 'finished'});
+                }
+            }, 500);
+        })
+
     }
 
     // API
@@ -142,21 +178,9 @@ function YouTube() {
             result = {};
         youTubeHtmlParse.CategoryScraper(youTubeUrl, function (data) {
             for(var i = 0; i < Object.keys(data).length; i++) {
-                var crawler = utils.getCrawler();
-                crawler.queue([{
-                    uri : youTubeApi + data[i].youtubeId + '?v=2&alt=jsonc',
-                    callback: function(err, __result, $) {
-                        try {
-                            var data = JSON.parse(__result.body);
-                            console.log(data.data.id);
-                            result[data.data.id] = data.data;
-                        } catch(e) {
-                            var d = new Date();
-                            result[d.getTime()] = e;
-                        }
-                        //result[Math.random()]
-                    }
-                }]);
+                youTubeHtmlParse.ParseDetailApi(youTubeApi + data[i].youtubeId + '?v=2&alt=jsonc', function(data) {
+                    result[data.youtubeId] = data;
+                }, data[i]);
             }
 
             var inc = 0;
