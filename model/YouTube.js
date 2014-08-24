@@ -26,7 +26,7 @@ function youTubeModel() {
     self.getList = function(params, callback) {
         var conn = utils.getMySql();
 
-        var sql = "SELECT `id`, `title`, `thumb`, `main_img`, `author`, `brief`, `created_time`, `crawled_time`, `video` FROM `news` WHERE 1=1";
+        var sql = "SELECT `id`, `title`, `thumb`, `main_img`, `author`, `brief`, `created_time`, `crawled_time`, `video`, `viewed`, `duration` FROM `news` WHERE 1=1";
 
         var condition = '';
         if(typeof params['kw'] != 'undefined' & params['kw'] != '') {
