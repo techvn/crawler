@@ -94,7 +94,7 @@ function YouTube() {
                     sql += comma + "UPDATE `news` SET `publish`='" + data.publish + "', `thumb`='" + data.thumb + "', `main_img`='" + data.img + "' WHERE `video`='" + data.video + "'";
                     comma = ',';*/
                     inc++;
-                    sql = "UPDATE `news` SET `created_time`='" + data.publish + "', `thumb`='" + data.thumb + "', `main_img`='" + data.img + "' WHERE `video`='" + data.video + "'";
+                    sql = "UPDATE `news` SET `created_time`='" + data.publish + "', `thumb`='" + data.thumb + "', `main_img`='" + data.img + "', `duration`='" + data.duration + "' WHERE `video`='" + data.video + "'";
                     console.log(sql);
                     youTubeModel.youTubeModel.getUtils(sql, function(rows, err) {
                         if(err) throw err;

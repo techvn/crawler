@@ -83,11 +83,11 @@ function youTubeModel() {
         var date = require('./../utils/Utils').getDateDbString();
 
         var sql = "INSERT IGNORE INTO `news` (`title`, `brief`, `main_img`, `description`, `author`, `created_time`, "
-            + "`cat_id`, `viewed`, `video`, `link_origin`, `crawled_time`, `status`)"
+            + "`cat_id`, `viewed`, `video`, `duration`, `link_origin`, `crawled_time`, `status`)"
             + " values('" + escape(data['title']) + "', '" + escape(data['brief']) + "', '"
             + data['img'] + "', '" + escape(data['content']) + "', '"
             + data['author'] + "', '" + data['publish'] + "', '" + data['cid'] + "', '"
-            + data['viewed'] + "', '" + data['youtubeId'] + "','" + data['link'] + "', '" + date + "', 1)";
+            + data['viewed'] + "', '" + data['youtubeId'] + "', " + data['duration'] + ",'" + data['link'] + "', '" + date + "', 1)";
 
         connection.query(sql, function (err, rows, fields) {
             if (!err) {
@@ -117,11 +117,11 @@ function youTubeModel() {
             value += comma + "('" + escape(data['title']) + "', '" + escape(data['brief']) + "', '"
                 + data['img'] + "', '" + escape(data['content']) + "', '"
                 + data['author'] + "', '" + data['publish'] + "', '" + data['cid'] + "', '"
-                + data['viewed'] + "', '" + data['youtubeId'] + "','" + data['link'] + "', '" + date + "', 1)";
+                + data['viewed'] + "', '" + data['youtubeId'] + "', " + data['duration']  + "','" + data['link'] + "', '" + date + "', 1)";
             comma = ',';
         }
         var sql = "INSERT IGNORE INTO `news` (`title`, `brief`, `main_img`, `description`, `author`, `created_time`, "
-            + "`cat_id`, `viewed`, `video`, `link_origin`, `crawled_time`, `status`) values" + value;
+            + "`cat_id`, `viewed`, `video`, `duration`, `link_origin`, `crawled_time`, `status`) values" + value;
         connection.query(sql, function(err, rorws, field) {
             callback(sql, err);
         });

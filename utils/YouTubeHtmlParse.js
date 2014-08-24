@@ -93,6 +93,7 @@ var YouTubeHtmlParse = function () {
                         result.description = data.data.description;
                         result.thumb = data.data.thumbnail.sqDefault;
                         result.img = data.data.thumbnail.hqDefault;
+                        result.duration = data.data.duration;
                     } catch (e) {
                         var d = new Date();
                         result[d.getTime()] = e;
