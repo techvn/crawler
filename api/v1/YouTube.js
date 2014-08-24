@@ -84,18 +84,17 @@ function YouTube() {
 
     self.getUpdateData = function(req, res) {
         // Read data in database
-        var data = youTubeModel.youTubeModel.getUtils("SELECT `video` FROM `news` WHERE `video` != ''", function(rows, err) {
+        var data = youTubeModel.youTubeModel.getUtils("SELECT `video`, `created_time` FROM `news` WHERE `video` != ''", function(rows, err) {
             var sql = '', comma = '';
             var inc = 0;
             var youTubeApi = 'https://gdata.youtube.com/feeds/api/videos/';
             for(var o in rows) {
                 youTubeHtmlParse.ParseDetailApi(youTubeApi + rows[o].video + '?v=2&alt=jsonc', function(data) {
-                    /*
-                    sql += comma + "UPDATE `news` SET `publish`='" + data.publish + "', `thumb`='" + data.thumb + "', `main_img`='" + data.img + "' WHERE `video`='" + data.video + "'";
-                    comma = ',';*/
                     inc++;
-                    sql = "UPDATE `news` SET `created_time`='" + data.publish + "', `thumb`='" + data.thumb + "', `main_img`='" + data.img + "', `duration`='" + data.duration + "' WHERE `video`='" + data.video + "'";
-                    console.log(sql);
+                    if(data.created_time == 'undefined') {
+                        sql = "DELETE FROM `news` WHERE `video`='" + data.video + "'";
+                    } else
+                        sql = "UPDATE `news` SET `created_time`='" + data.publish + "', `thumb`='" + data.thumb + "', `main_img`='" + data.img + "', `duration`='" + data.duration + "' WHERE `video`='" + data.video + "'";
                     youTubeModel.youTubeModel.getUtils(sql, function(rows, err) {
                         if(err) throw err;
                     });
@@ -139,7 +138,7 @@ function YouTube() {
                             date = new Date(Date.UTC(dateParts[0], parseInt(dateParts[1], 10) - 1, dateParts[2], timeParts[0], timeParts[1], timeParts[2]));
                             dateString = date.getTime()/1000;
 
-                        }catch(e) {
+                        } catch(e) {
 
                         }
                         data[o].created_time = dateString;

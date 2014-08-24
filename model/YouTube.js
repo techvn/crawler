@@ -32,7 +32,7 @@ function youTubeModel() {
         if(typeof params['kw'] != 'undefined' & params['kw'] != '') {
             condition += " AND (`title` LIKE '%" + params['kw'] + "%' OR `brief` LIKE '%" + params['kw'] + "%' OR `description` LIKE '%" + params['kw'] + "%')"
         }
-        sql += condition + " AND `link_origin` LIKE '%youtube.com%'";
+        sql += condition + " AND `link_origin` LIKE '%youtube.com%' AND `created_time` != 'undefined'";
 
         var order = ' ORDER BY `crawled_time` DESC, `id` ASC';
         sql += order;
@@ -114,6 +114,7 @@ function youTubeModel() {
         var value = '', comma = '';
         for(var i in obj) {
             var data = obj[i];
+            if(obj[i].publish == 'undefined') { continue; }
             value += comma + "('" + escape(data['title']) + "', '" + escape(data['brief']) + "', '"
                 + data['img'] + "', '" + escape(data['content']) + "', '"
                 + data['author'] + "', '" + data['publish'] + "', '" + data['cid'] + "', '"
