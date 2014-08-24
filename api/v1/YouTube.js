@@ -130,13 +130,19 @@ function YouTube() {
                         data[o].title = unescape(data[o].title);
                         data[o].brief = unescape(data[o].brief);
 
-                        var dateString = data[o].created_time,
-                            dateParts = dateString.split(' '),
-                            timeParts = dateParts[1].split(':'),
-                            date;
-                        dateParts = dateParts[0].split('-');
-                        date = new Date(Date.UTC(dateParts[0], parseInt(dateParts[1], 10) - 1, dateParts[2], timeParts[0], timeParts[1], timeParts[2]));
-                        data[o].created_time = date.getTime()/1000;
+                        var dateString = data[o].created_time
+                        try {
+                            var dateParts = dateString.split(' '),
+                                timeParts = dateParts[1].split(':'),
+                                date;
+                            dateParts = dateParts[0].split('-');
+                            date = new Date(Date.UTC(dateParts[0], parseInt(dateParts[1], 10) - 1, dateParts[2], timeParts[0], timeParts[1], timeParts[2]));
+                            dateString = date.getTime()/1000;
+
+                        }catch(e) {
+
+                        }
+                        data[o].created_time = dateString;
 
                         d[o] = data[o];
                     }
