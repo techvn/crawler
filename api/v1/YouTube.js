@@ -98,7 +98,7 @@ function YouTube() {
                     } else
                         sql = "UPDATE `news` SET `created_time`='" + data.publish
                             + "', `thumb`='" + data.thumb + "', `main_img`='" + data.img + "', `duration`='"
-                            + data.duration + "', `description`='"  + data.content + "' WHERE `video`='" + data.video + "'";
+                            + data.duration + "', `description`='"  + escape(data.content) + "' WHERE `video`='" + data.video + "'";
                     youTubeModel.youTubeModel.getUtils(sql, function(rows, err) {
                         if(err) throw err;
                     });
