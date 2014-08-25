@@ -118,7 +118,7 @@ function youTubeModel() {
             value += comma + "('" + escape(data['title']) + "', '" + escape(data['brief']) + "', '"
                 + data['img'] + "', '" + escape(data['content']) + "', '"
                 + data['author'] + "', '" + data['publish'] + "', '" + data['cid'] + "', '"
-                + data['viewed'] + "', '" + data['youtubeId'] + "', " + data['duration']  + "','" + data['link'] + "', '" + date + "', 1)";
+                + data['viewed'] + "', '" + data['youtubeId'] + "', '" + data['duration']  + "','" + data['link'] + "', '" + date + "', 1)";
             comma = ',';
         }
         var sql = "INSERT IGNORE INTO `news` (`title`, `brief`, `main_img`, `description`, `author`, `created_time`, "
