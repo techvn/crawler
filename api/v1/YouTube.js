@@ -84,7 +84,9 @@ function YouTube() {
 
     self.getUpdateData = function(req, res) {
         // Read data in database
-        var data = youTubeModel.youTubeModel.getUtils("SELECT `video`, `created_time` FROM `news` WHERE `video` != ''", function(rows, err) {
+        var data = youTubeModel.youTubeModel.getUtils(
+            "SELECT `video`, `created_time` FROM `news` WHERE `video` != ''",
+            function(rows, err) {
             var sql = '', comma = '';
             var inc = 0;
             var youTubeApi = 'https://gdata.youtube.com/feeds/api/videos/';
@@ -94,7 +96,9 @@ function YouTube() {
                     if(data.created_time == 'undefined') {
                         sql = "DELETE FROM `news` WHERE `video`='" + data.video + "'";
                     } else
-                        sql = "UPDATE `news` SET `created_time`='" + data.publish + "', `thumb`='" + data.thumb + "', `main_img`='" + data.img + "', `duration`='" + data.duration + "' WHERE `video`='" + data.video + "'";
+                        sql = "UPDATE `news` SET `created_time`='" + data.publish
+                            + "', `thumb`='" + data.thumb + "', `main_img`='" + data.img + "', `duration`='"
+                            + data.duration + "', `description`='"  + data.content + "' WHERE `video`='" + data.video + "'";
                     youTubeModel.youTubeModel.getUtils(sql, function(rows, err) {
                         if(err) throw err;
                     });
