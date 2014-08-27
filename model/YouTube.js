@@ -116,12 +116,12 @@ function youTubeModel() {
             var data = obj[i];
             if(obj[i].publish == 'undefined') { continue; }
             value += comma + "('" + escape(data['title']) + "', '" + escape(data['brief']) + "', '"
-                + data['img'] + "', '" + escape(data['content']) + "', '"
+                + data['thumb'] + "', '" + data['img'] + "', '" + escape(data['content']) + "', '"
                 + data['author'] + "', '" + data['publish'] + "', '" + data['cid'] + "', '"
                 + data['viewed'] + "', '" + data['youtubeId'] + "', '" + data['duration']  + "','" + data['link'] + "', '" + date + "', 1)";
             comma = ',';
         }
-        var sql = "INSERT IGNORE INTO `news` (`title`, `brief`, `main_img`, `description`, `author`, `created_time`, "
+        var sql = "INSERT IGNORE INTO `news` (`title`, `brief`, `thumb`, `main_img`, `description`, `author`, `created_time`, "
             + "`cat_id`, `viewed`, `video`, `duration`, `link_origin`, `crawled_time`, `status`) values" + value;
         connection.query(sql, function(err, rorws, field) {
             callback(sql, err);

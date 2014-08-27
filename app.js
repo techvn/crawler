@@ -20,6 +20,7 @@ app.set('port', process.env.PORT || 1234);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.set('base_path', __dirname);
+app.set('env', 'production'); // default: development
 
 app.use(express.favicon());
 app.use(express.logger('dev'));
