@@ -8,9 +8,7 @@ var express = require('express')
     , sugar = require('sugar')
     , http = require('http')
     , path = require('path')
-    , fs = require('fs'),
-    apnagent = require('apnagent'),
-    join = require('path').join;
+    , fs = require('fs');
 
 global.ROOT_PATH = __dirname;
 
