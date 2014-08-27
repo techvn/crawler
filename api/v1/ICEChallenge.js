@@ -27,17 +27,15 @@ function IceChallenge() {
 
     self.getPushNotification = function(req, res) {
         var app = express(),
-            agent = app.get('apn'),
-            message = req.body.message,
-            token = req.body.token,
             agent = new apnagent.Agent();
-
         // configure agent
-        agent.set('cert file', join(__dirname, 'certs/apn/prod-cert.pem'))
-            .set('key file', join(__dirname, 'certs/apn/prod-key.pem'));
+        agent.set('key file', join(__dirname, 'arsenal/ck_new.pem'))
+            .set('passphrase', 'abc123').enable('sandbox');
+        app.set('apn', agent); //.set('apn-env', 'live-production')
 
-        // mount to app
-        app.set('apn', agent).set('apn-env', 'live-production');
+        var message = req.body.message,
+            token = req.body.token,
+            agent = app.get('apn');
 
         agent.createMessage()
             .device(token)
@@ -57,6 +55,62 @@ function IceChallenge() {
                     res.json({ success: true });
                 }
             });
+    }
+
+    self.getPushNotification2 = function(req, res) {
+        var notify = require('push-notify');
+        var apn = notify.apn({
+            key: join(__dirname, 'arsenal/ck_new.pem'),
+            passphrase: 'abc123'
+        });
+
+        // Send a notification.
+        apn.send({
+            token: 'b6f2881c360b74c81e16c9b8e33bac91d5597a6cb43c5d16468347be766ee5fa',
+            alert: 'Fu*k Son!'
+        });
+        apn.on('transmitted', function (notification, device) {
+            res.send(notification);
+        });
+        apn.on('transmissionError', function (errorCode, notification, device) {
+            notification.err = errorCode;
+            console.log(errorCode);
+            res.send(notification);
+        });
+        apn.on('error', function (error) {
+            //res.send(error);
+        });
+    }
+
+    self.getPush = function(req, res) {
+        var apns = require('apn');
+        var root = process.cwd();
+        var fs = require('fs');
+
+        var options = {
+            cert: ROOT_PATH + '/arsenal/ck_new.pem',                 /* Certificate file path */
+            certData: null,                   /* String or Buffer containing certificate data, if supplied uses this instead of cert file path */
+            key: null,                  /* Key file path */
+            keyData: null,                    /* String or Buffer containing key data, as certData */
+            passphrase: 'abc123',                 /* A passphrase for the Key file */
+            ca: null,                         /* String or Buffer of CA data to use for the TLS connection */
+            gateway: 'gateway.sandbox.push.apple.com',/* gateway address */
+            port: 2195,                       /* gateway port */
+            enhanced: true,                   /* enable enhanced format */
+            errorCallback: undefined,         /* Callback when error occurs function(err,notification) */
+            cacheLength: 100                  /* Number of notifications to cache for error purposes */
+        };
+
+        var apnsConnection = new apns.Connection(options);
+
+        var myDevice = new apns.Device('b6f2881c360b74c81e16c9b8e33bac91d5597a6cb43c5d16468347be766ee5fa');
+
+        var note = new apns.Notification('hi');
+
+        note.payload = {};
+        note.device = myDevice;
+
+        apnsConnection.sendNotification(note);
     }
 }
 

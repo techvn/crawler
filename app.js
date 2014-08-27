@@ -8,7 +8,7 @@ var express = require('express')
     , sugar = require('sugar')
     , http = require('http')
     , path = require('path')
-    , fs        = require('fs');
+    , fs = require('fs');
 
 global.ROOT_PATH = __dirname;
 
@@ -52,7 +52,7 @@ app.get(/^\/api\/(\w+)\/(\w+)\/(?:(\w+))?$/, function (req, res) {
         if (packageName.hasOwnProperty(method)) {
             packageName[method](req, res);
         } else {
-            res.json('API METHOD: GET /api/'+req.params[0]+'/'+req.params[1]+'/'+req.params[2] + ' not found!', 404);
+            res.json('API METHOD: GET /api/' + req.params[0] + '/' + req.params[1] + '/' + req.params[2] + ' not found!', 404);
         }
     }
 

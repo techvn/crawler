@@ -23,6 +23,11 @@
         "mongojs" : "0.9.11",
         "mysql" : "2.4.2",
         "jsonml": "0.0.4",
-        "apnagent" : "1.1.1"
+        "apnagent" : "1.1.1",
+        "push-notify" : "1.1.1",
+
+        "pipe-event" : "0.1.0",
+        "lodash" : "2.4.1",
+        "apn" : "1.6.0"
     }
 }
