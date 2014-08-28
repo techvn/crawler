@@ -11,14 +11,14 @@ function IceChallenge() {
     var self = this;
     self.getFamousList = function(req, res) {
         var kw = req.query.kw || '';
+        var limit = req.query.limit || '';
         var conn = utils.getMySql();
-        conn.query('SELECT * FROM `famous_list`' + (kw != '' ? ' WHERE `name` LIKE "%' + kw + '%"' : ''), function(err, rows, fields) {
+        conn.query('SELECT * FROM `famous_list`' + (kw != '' ? ' WHERE `name` LIKE "%' + kw + '%"' : '')
+            + (limit ? ' LIMIT ' + limit : ''), function(err, rows, fields) {
             if(!err) {
-                /*var data = [];
                 for(var o in rows) {
-                    data[o] = rows[o]['name'];
+                    rows[o].birth = require('./../../utils/Utils').getDateDbString(rows[o].birth);
                 }
-                rows = data;*/
             }
             res.json(err || rows);
         })
