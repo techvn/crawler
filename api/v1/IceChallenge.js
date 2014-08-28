@@ -13,7 +13,8 @@ function IceChallenge() {
         var kw = req.query.kw || '';
         var limit = req.query.limit || '';
         var conn = utils.getMySql();
-        conn.query('SELECT * FROM `famous_list`' + (kw != '' ? ' WHERE `name` LIKE "%' + kw + '%"' : '')
+        conn.query('SELECT `id`, `name`, `birth`, `thumb`, `brief` FROM `famous_list` WHERE `status`=1 '
+            + (kw != '' ? ' AND `name` LIKE "%' + kw + '%"' : '')
             + (limit ? ' LIMIT ' + limit : ''), function(err, rows, fields) {
             if(!err) {
                 for(var o in rows) {
