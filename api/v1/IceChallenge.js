@@ -18,6 +18,8 @@ function IceChallenge() {
             if(!err) {
                 for(var o in rows) {
                     rows[o].birth = require('./../../utils/Utils').getDateDbString(rows[o].birth);
+                    rows[o].video = {};
+                    rows[o].news = {};
                 }
             }
             res.json(err || rows);
