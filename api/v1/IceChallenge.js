@@ -12,13 +12,13 @@ function IceChallenge() {
     self.getFamousList = function(req, res) {
         var kw = req.query.kw || '';
         var conn = utils.getMySql();
-        conn.query('SELECT `name` FROM `famous_list`' + (kw != '' ? ' WHERE `name` LIKE "%' + kw + '%"' : ''), function(err, rows, fields) {
+        conn.query('SELECT * FROM `famous_list`' + (kw != '' ? ' WHERE `name` LIKE "%' + kw + '%"' : ''), function(err, rows, fields) {
             if(!err) {
-                var data = [];
+                /*var data = [];
                 for(var o in rows) {
                     data[o] = rows[o]['name'];
                 }
-                rows = data;
+                rows = data;*/
             }
             res.json(err || rows);
         })
