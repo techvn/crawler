@@ -112,6 +112,22 @@ function IceChallenge() {
 
         apnsConnection.sendNotification(note);
     }
+
+    /**
+     * Add new token
+     * @param req
+     * @param res
+     */
+    self.getToken = function(req, res) {
+        var data = {};
+        data.token = req.query.key || '';
+        data.os = req.query.type || 'ios';
+
+        var token = require('./../../model/PushToken').PushToken;
+        token.insertToken(data, function(rows, err) {
+            res.json(err || rows);
+        });
+    }
 }
 
 exports.IceChallenge = new IceChallenge();
