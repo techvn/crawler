@@ -59,8 +59,8 @@ var YouTubeHtmlParse = function () {
                     $('#results div.yt-lockup').each(function (index) {
                         var obj = {};//youTube.YouTube(null);
                         data[index] = {};
-                        obj.img = (typeof $(this).find('img').attr('data-thumb') != 'undefined') ?
-                            $(this).find('img').attr('data-thumb') : $(this).find('img').attr('src');
+                        /*obj.img = (typeof $(this).find('img').attr('data-thumb') != 'undefined') ?
+                            $(this).find('img').attr('data-thumb') : $(this).find('img').attr('src');*/
                         obj.title = $(this).find('h3.yt-lockup-title').text();
                         obj.author = $(this).find('.yt-lockup-meta-info b').text();
                         obj.brief = $(this).find('div.yt-lockup-description').html();
@@ -94,6 +94,7 @@ var YouTubeHtmlParse = function () {
                         result.thumb = data.data.thumbnail.sqDefault;
                         result.img = data.data.thumbnail.hqDefault;
                         result.duration = data.data.duration;
+                        result.likeCount = data.data.likeCount;
                     } catch (e) {
                         var d = new Date();
                         result[d.getTime()] = e;

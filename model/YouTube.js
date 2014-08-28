@@ -8,10 +8,13 @@ var YouTube = module.exports.YouTube = function (s) {
 
     this.title = s.title || '';
     this.brief = s.brief || '';
+    this.thumb = s.thumb || '';
     this.img = s.img || [];
     this.video = s.video || ""; // Link video
     this.content = s.content || ''; // YouTube have no content
     this.comments = s.comments || [];
+    this.viewed = s.viewed || 0;
+    this.likeCount = s.likeCount || 0;
     this.author = s.author || '';
     this.publish = s.publish || new Date().toString();
     this.domain = 'youtube.com';
@@ -26,7 +29,7 @@ function youTubeModel() {
     self.getList = function(params, callback) {
         var conn = utils.getMySql();
 
-        var sql = "SELECT `id`, `title`, `thumb`, `main_img`, `author`, `brief`, `created_time`, `crawled_time`, `video`, `viewed`, `duration` FROM `news` WHERE 1=1";
+        var sql = "SELECT `id`, `title`, `thumb`, `main_img`, `author`, `brief`, `created_time`, `crawled_time`, `video`, `viewed`, `likeCount`, `duration` FROM `news` WHERE 1=1";
 
         var condition = '';
         if(typeof params['kw'] != 'undefined' & params['kw'] != '') {
@@ -83,11 +86,12 @@ function youTubeModel() {
         var date = require('./../utils/Utils').getDateDbString();
 
         var sql = "INSERT IGNORE INTO `news` (`title`, `brief`, `main_img`, `description`, `author`, `created_time`, "
-            + "`cat_id`, `viewed`, `video`, `duration`, `link_origin`, `crawled_time`, `status`)"
+            + "`cat_id`, `viewed`, `likeCount`, `video`, `duration`, `link_origin`, `crawled_time`, `status`)"
             + " values('" + escape(data['title']) + "', '" + escape(data['brief']) + "', '"
             + data['img'] + "', '" + escape(data['content']) + "', '"
             + data['author'] + "', '" + data['publish'] + "', '" + data['cid'] + "', '"
-            + data['viewed'] + "', '" + data['youtubeId'] + "', " + data['duration'] + ",'" + data['link'] + "', '" + date + "', 1)";
+            + data['viewed'] + "', '" + data['likeCount'] + "', '" + data['youtubeId']
+            + "', " + data['duration'] + ",'" + data['link'] + "', '" + date + "', 1)";
 
         connection.query(sql, function (err, rows, fields) {
             if (!err) {
@@ -118,11 +122,12 @@ function youTubeModel() {
             value += comma + "('" + escape(data['title']) + "', '" + escape(data['brief']) + "', '"
                 + data['thumb'] + "', '" + data['img'] + "', '" + escape(data['content']) + "', '"
                 + data['author'] + "', '" + data['publish'] + "', '" + data['cid'] + "', '"
-                + data['viewed'] + "', '" + data['youtubeId'] + "', '" + data['duration']  + "','" + data['link'] + "', '" + date + "', 1)";
+                + data['viewed'] + "', '" + data['likeCount'] + "', '" + data['youtubeId']
+                + "', '" + data['duration']  + "','" + data['link'] + "', '" + date + "', 1)";
             comma = ',';
         }
         var sql = "INSERT IGNORE INTO `news` (`title`, `brief`, `thumb`, `main_img`, `description`, `author`, `created_time`, "
-            + "`cat_id`, `viewed`, `video`, `duration`, `link_origin`, `crawled_time`, `status`) values" + value;
+            + "`cat_id`, `viewed`, `likeCount`, `video`, `duration`, `link_origin`, `crawled_time`, `status`) values" + value;
         connection.query(sql, function(err, rorws, field) {
             callback(sql, err);
         });

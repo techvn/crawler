@@ -96,8 +96,8 @@ function YouTube() {
                     if(data.created_time == 'undefined') {
                         sql = "DELETE FROM `news` WHERE `video`='" + data.video + "'";
                     } else
-                        sql = "UPDATE `news` SET `created_time`='" + data.publish
-                            + "', `thumb`='" + data.thumb + "', `main_img`='" + data.img + "', `duration`='"
+                        sql = "UPDATE `news` SET `created_time`='" + data.publish + "', `likeCount`='" + data.likeCount
+                            + "', `thumb`='" + data.thumb + "', `viewed`='" + data.viewed + "', `main_img`='" + data.img + "', `duration`='"
                             + data.duration + "', `description`='"  + escape(data.content) + "' WHERE `video`='" + data.video + "'";
                     youTubeModel.youTubeModel.getUtils(sql, function(rows, err) {
                         if(err) throw err;
