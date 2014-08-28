@@ -117,7 +117,7 @@ function googleNewsModel() {
             var data = obj[i];
             value += comma + "('" + escape(data['title']) + "', '" + escape(data['description']) + "', '"
                 + data['img'] + "', '" + escape(data['description']) + "', '"
-                + (typeof data['author'] != 'undefined' ? data['author'] : "") + "', '" + data['pubDate'] + "', '" + data['cid'] + "', '"
+                + (typeof data['author'] != 'undefined' ? escape(data['author']) : "") + "', '" + data['pubDate'] + "', '" + data['cid'] + "', '"
                 + data['link'] + "', '" + date + "', 1)";
             comma = ',';
         }
