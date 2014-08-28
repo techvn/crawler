@@ -94,7 +94,7 @@ var YouTubeHtmlParse = function () {
                         result.thumb = data.data.thumbnail.sqDefault;
                         result.img = data.data.thumbnail.hqDefault;
                         result.duration = data.data.duration;
-                        result.viewed = data.data.viewed;
+                        result.viewed = data.data.viewCount;
                         result.likeCount = data.data.likeCount;
                     } catch (e) {
                         var d = new Date();
