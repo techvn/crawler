@@ -53,12 +53,12 @@ function GoogleNews() {
             return;
 
             // data : [[googleNews : [img : '', author : '', title : '', brief : ''], url : ''], [...]]
-            for(var i = 0; i < data.length; i++) {
+            /*for(var i = 0; i < data.length; i++) {
                 var googleObj = googleNews.GoogleNews(data[i]['googleNews']);
                 googleNewsHtmlParse.DetailScraper(url, function() {
 
                 }, googleObj);
-            }
+            }*/
         });
     }
 

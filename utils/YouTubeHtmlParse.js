@@ -47,7 +47,7 @@ var YouTubeHtmlParse = function () {
      * @param callback
      * @constructor
      */
-    self.CategoryScraper = function (link, callback) {
+    self.CategoryScraper = function (link, callback, refer) {
         var crawler = utils.getCrawler();
         crawler.queue([
             {
@@ -63,7 +63,7 @@ var YouTubeHtmlParse = function () {
                             $(this).find('img').attr('data-thumb') : $(this).find('img').attr('src');*/
                         obj.title = $(this).find('h3.yt-lockup-title').text();
                         obj.author = $(this).find('.yt-lockup-meta-info b').text();
-                        obj.brief = $(this).find('div.yt-lockup-description').html();
+                        obj.brief = $(this).find('div.yt-lockup-description').text();
                         obj.publish = $(this).find('li').eq(1).text();
                         obj.viewed = $(this).find('li').eq(2).text().replace(/[a-zA-Z\s]/g, '');
                         obj.link = 'https://youtube.com' + $(this).find('h3.yt-lockup-title').find('a').attr('href');
@@ -72,13 +72,13 @@ var YouTubeHtmlParse = function () {
                         data[index] = obj;
                     });
 
-                    callback(data);
+                    callback(data, refer);
                 }
             }
         ]);
     }
 
-    self.ParseDetailApi = function (link, callback, obj) {
+    self.ParseDetailApi = function (link, callback, obj, refer) {
         var crawler = utils.getCrawler(),
             result = obj || {};
         crawler.queue([
@@ -100,7 +100,7 @@ var YouTubeHtmlParse = function () {
                         var d = new Date();
                         result[d.getTime()] = e;
                     }
-                    callback(result);
+                    callback(result, refer);
                 }
             }
         ]);

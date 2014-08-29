@@ -49,22 +49,22 @@ var GoogleNewsHtmlParse = function () {
      * @param callback
      * @constructor
      */
-    self.CategoryScraper = function (link, callback) {
+    self.CategoryScraper = function (link, callback, object, refer) {
         var crawler = utils.getCrawler();
+        var data = object || {},
+            inc = 0;
         googleNews = googleNews.GoogleNews(null);
         crawler.queue([
             {
                 'uri': link,
                 'callback': function (error, result, $) {
                     // Read rss data
-                    var jsonXml = xmlParse(result.body);
-                    var result = [];
+                    var jsonXml = xmlParse(result.body),
+                        result = [];
                     for(var i = 10; i < jsonXml[2].length; i++) {
                         result[i - 10] = jsonXml[2][i];
                     }
 
-                    var data = {};
-                    var inc = 0;
                     for(var i = 0; i < result.length; i++) {
                         if(result[i].length <= 3 ) { continue; }
                         data[inc] = {};
@@ -85,7 +85,7 @@ var GoogleNewsHtmlParse = function () {
                         inc++;
                     }
 
-                    callback(data);
+                    callback(data, refer);
                 }
             }
         ]);
