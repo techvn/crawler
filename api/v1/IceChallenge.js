@@ -138,10 +138,6 @@ function IceChallenge() {
         utils.endMySql(conn);
     }
 
-    self.getFamous = function () {
-
-    }
-
     self.getPushNotification = function (req, res) {
         var app = express(),
             agent = new apnagent.Agent();
