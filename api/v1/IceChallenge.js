@@ -76,6 +76,68 @@ function IceChallenge() {
         utils.endMySql(conn);
     }
 
+    self.getFamous = function (req, res) {
+        var id = req.query.id || 0,
+            conn = utils.getMySql();
+        conn.query('SELECT * FROM `famous_list` WHERE `status`=1 AND `id`=' + id, function (err, rows, fields) {
+            if (!err) {
+                var inc = 0,
+                    url_video = '',
+                    url_news = '',
+                    youTubeApi = 'https://gdata.youtube.com/feeds/api/videos/',
+                    googleNewsHtmlParse = require('./../../utils/GoogleNewsHtmlParse').GoogleNewsHtmlParse;
+                for (var o in rows) {
+                    rows[o].birth = require('./../../utils/Utils').getDateDbString(rows[o].birth);
+                    rows[o].video = {};
+                    rows[o].news = [];
+
+                    // Check has video
+                    //if(!rows[o].video | rows[o].video == null) {
+                    url_video = 'https://www.youtube.com/results?search_query=ice+bucket+challenge+' + rows[o].name.replace(/\s/g, '+');
+                    youTubeHtmlParse.CategoryScraper(url_video, function (data, refer) {
+                        if (Object.keys(data).length == 0) {
+                            inc++;
+                            return;
+                        }
+                        for (var i = 0; i < Object.keys(data).length; i++) {
+                            //rows[o].video = data[i];
+                            //console.log(data[i].youtubeId);
+                            youTubeHtmlParse.ParseDetailApi(youTubeApi + data[i].youtubeId + '?v=2&alt=jsonc', function (data, refer) {
+                                inc++;
+                                rows[refer].video = data;
+                                console.log(data);
+                            }, data[i], refer);
+                            break;
+                        }
+                    }, o);
+                    //}
+
+                    // Feed news
+                    url_news = 'https://news.google.com/news/feeds?hl=en&output=rss&q=ice+bucket+challenge+'
+                        + rows[o].name.replace(/\s/g, '+') + '&um=1&gl=us&authuser=0&ie=UTF-8';
+                    console.log(url_news);
+                    googleNewsHtmlParse.CategoryScraper(url_news, function(data, refer) {
+                        rows[refer].news = data;
+                    }, null, o);
+                }
+
+                var time = 0;
+                var timer = setInterval(function () {
+                    if (inc == Object.keys(rows).length | time >= 100) {
+                        res.json(err || rows);
+                        clearInterval(timer);
+                    }
+                    time++;
+                }, 250);
+
+            } else {
+                res.json(err);
+            }
+        });
+
+        utils.endMySql(conn);
+    }
+
     self.getFamous = function () {
 
     }
