@@ -51,7 +51,14 @@ var GoogleNewsHtmlParse = function () {
      * @constructor
      */
     self.CategoryScraper = function (link, callback, object, refer) {
-        var crawler = utils.getCrawler();
+        var crawler = utils.getCrawler({"timeout": 30000, //30s
+            "jQuery": false,
+            "headers": {
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "accept-charset": "gbk;utf-8",
+                "content-type": " application/rss+xml; charset=utf-8",
+                "user-agent": 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:32.0) Gecko/20100101 Firefox/32.0'
+            }});
         var data = object || {},
             inc = 0;
         googleNews = googleNews.GoogleNews(null);
@@ -60,7 +67,7 @@ var GoogleNewsHtmlParse = function () {
                 'uri': link,
                 'callback': function (error, result, $) {
                     // Read rss data
-                    /*try {
+                    try {
                         var jsonXml = xmlParse(result.body),
                             result = [];
                         for (var i = 10; i < jsonXml[2].length; i++) {
@@ -92,8 +99,8 @@ var GoogleNewsHtmlParse = function () {
                     } catch (e) {
                         data['error'] = e;
                         data['body'] = result.body;
-                    }*/
-                    data['body'] = result.body;
+                    }
+                    //data['body'] = result.body;
                     callback(data, refer);
                 }
             }

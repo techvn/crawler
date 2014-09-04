@@ -48,14 +48,7 @@ var YouTubeHtmlParse = function () {
      * @constructor
      */
     self.CategoryScraper = function (link, callback, refer) {
-        var crawler = utils.getCrawler({"timeout": 30000, //30s
-            "jQuery": false,
-            "headers": {
-                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                "accept-charset": "gbk;utf-8",
-                "content-type": " application/rss+xml; charset=utf-8",
-                "user-agent": 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:32.0) Gecko/20100101 Firefox/32.0'
-            }});
+        var crawler = utils.getCrawler(null);
         crawler.queue([
             {
                 'uri': link,
