@@ -12,20 +12,19 @@ var Utils = function () {
     /**
      * @returns crawler.Crawler
      */
-    self.getCrawler = function () {
+    self.getCrawler = function (config) {
+        var config = config || {"timeout" : 30000, //30s
+                                "jQuery" : false,
+                                "headers":{
+                                    "accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                                    "accept-charset":"gbk;utf-8",
+                                    "content-type":" text/html; charset=utf-8",
+                                    "user-agent":'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:32.0) Gecko/20100101 Firefox/32.0'
+                                }};
         var self = this;
         if (null == self._crawler) {
             var Crawler = require('crawler').Crawler;
-            self._crawler = new Crawler({
-                "timeout" : 30000, //30s
-                "jQuery" : false,
-                "headers":{
-                    "accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                    "accept-charset":"gbk;utf-8",
-                    "content-type":" text/html; charset=utf-8",
-                    "user-agent":'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:32.0) Gecko/20100101 Firefox/32.0'
-                }
-            });
+            self._crawler = new Crawler(config);
         }
 
         return self._crawler;

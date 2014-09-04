@@ -48,7 +48,14 @@ var YouTubeHtmlParse = function () {
      * @constructor
      */
     self.CategoryScraper = function (link, callback, refer) {
-        var crawler = utils.getCrawler();
+        var crawler = utils.getCrawler({"timeout": 30000, //30s
+            "jQuery": false,
+            "headers": {
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "accept-charset": "gbk;utf-8",
+                "content-type": " application/rss+xml; charset=utf-8",
+                "user-agent": 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:32.0) Gecko/20100101 Firefox/32.0'
+            }});
         crawler.queue([
             {
                 'uri': link,
@@ -60,7 +67,7 @@ var YouTubeHtmlParse = function () {
                         var obj = {};//youTube.YouTube(null);
                         data[index] = {};
                         /*obj.img = (typeof $(this).find('img').attr('data-thumb') != 'undefined') ?
-                            $(this).find('img').attr('data-thumb') : $(this).find('img').attr('src');*/
+                         $(this).find('img').attr('data-thumb') : $(this).find('img').attr('src');*/
                         obj.title = $(this).find('h3.yt-lockup-title').text();
                         obj.author = $(this).find('.yt-lockup-meta-info b').text();
                         obj.brief = $(this).find('div.yt-lockup-description').text();

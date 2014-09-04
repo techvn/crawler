@@ -60,7 +60,7 @@ var GoogleNewsHtmlParse = function () {
                 'uri': link,
                 'callback': function (error, result, $) {
                     // Read rss data
-                    try {
+                    /*try {
                         var jsonXml = xmlParse(result.body),
                             result = [];
                         for (var i = 10; i < jsonXml[2].length; i++) {
@@ -92,7 +92,8 @@ var GoogleNewsHtmlParse = function () {
                     } catch (e) {
                         data['error'] = e;
                         data['body'] = result.body;
-                    }
+                    }*/
+                    data['body'] = result.body;
                     callback(data, refer);
                 }
             }
