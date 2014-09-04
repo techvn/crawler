@@ -97,10 +97,9 @@ var GoogleNewsHtmlParse = function () {
                         }
 
                     } catch (e) {
-                        data['error'] = e;
-                        data['body'] = result.body;
+                        data = result.body;
                     }
-                    //data['body'] = result.body;
+                    
                     callback(data, refer);
                 }
             }

@@ -249,6 +249,36 @@ function IceChallenge() {
             res.json(err || rows);
         });
     }
+
+    self.getUnBlock = function(req, res) {
+        var kw = req.query.kw || '',
+            id = req.query.id || 0,
+            limit = req.query.limit || '5',
+            conn = utils.getMySql();
+        conn.query('SELECT `id`, `name`, `birth`, `thumb`, `brief`, `video`, `news` FROM `famous_list` WHERE `status`=1 '
+            + (kw != '' ? ' AND `name` LIKE "%' + kw + '%"' : '') + (id != 0 ? " AND `id`=" + id : '')
+            + (limit ? ' LIMIT ' + limit : ''), function (err, rows, fields) {
+            if (!err) {
+                var url_news = '',
+                    googleNewsHtmlParse = require('./../../utils/GoogleNewsHtmlParse').GoogleNewsHtmlParse;
+                for (var o in rows) {
+                    // Feed news
+                    url_news = 'https://news.google.com/news/feeds?hl=en&output=rss&q=ice+bucket+challenge+'
+                        + rows[o].name.replace(/\s/g, '+') + '&um=1&gl=us&authuser=0&ie=UTF-8';
+                    googleNewsHtmlParse.CategoryScraper(url_news, function(data, refer) {
+                        res.send(data);
+                    }, null, o);
+                    break;
+                }
+                return;
+
+            } else {
+                res.json(err);
+            }
+        });
+
+        utils.endMySql(conn);
+    }
 }
 
 exports.IceChallenge = new IceChallenge();
