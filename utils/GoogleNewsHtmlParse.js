@@ -99,7 +99,7 @@ var GoogleNewsHtmlParse = function () {
                     } catch (e) {
                         data = result.body;
                     }
-                    
+
                     callback(data, refer);
                 }
             }
