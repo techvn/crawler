@@ -30,6 +30,7 @@ function GoogleNews() {
         // http://news.google.com/news?hl=en&output=rss&q=ice+bucket+challenge&um=1&gl=us&authuser=0&ie=UTF-8
 
         var url = req.query.url;
+        var cid = req.query.cid || 1;
         if(url == null || url == '') {
             res.json({
                 'err' : 'Url detail is invalided'
@@ -39,6 +40,7 @@ function GoogleNews() {
         googleNewsHtmlParse.CategoryScraper(url, function(data) {
             /*res.json(data);
             return;*/
+            data.cid = cid;
             googleNewsObj = googleNews.googleNewsModel;
             googleNewsObj.insertMultiNews(data, function(sql, err) {
                 if(err) {

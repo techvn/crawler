@@ -52,6 +52,7 @@ function YouTube() {
                     //model.saveNews(data);
                 }, youtube);*/
                 youTubeHtmlParse.ParseDetailApi(youTubeApi + data[i].youtubeId + '?v=2&alt=jsonc', function(data) {
+                    data.cid = cid;
                     result[data.youtubeId] = data;
                 }, data[i]);
             }
