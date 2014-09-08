@@ -40,7 +40,9 @@ function GoogleNews() {
         googleNewsHtmlParse.CategoryScraper(url, function(data) {
             /*res.json(data);
             return;*/
-            data.cid = cid;
+            for(var o in data) {
+                data[o].cid = cid;
+            }
             googleNewsObj = googleNews.googleNewsModel;
             googleNewsObj.insertMultiNews(data, function(sql, err) {
                 if(err) {

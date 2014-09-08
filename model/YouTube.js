@@ -33,7 +33,9 @@ function youTubeModel() {
 
         var condition = '';
         if(typeof params['kw'] != 'undefined' & params['kw'] != '') {
-            condition += " AND (`title` LIKE '%" + params['kw'] + "%' OR `brief` LIKE '%" + params['kw'] + "%' OR `description` LIKE '%" + params['kw'] + "%')"
+            condition += " AND (`title` LIKE '%" + params['kw'] + "%' OR `title` LIKE '%" + escape(params['kw']) + "%' " +
+                "OR `brief` LIKE '%" + params['kw'] + "%'  OR `brief` LIKE '%" + escape(params['kw']) + "%'" +
+                "OR `description` LIKE '%" + params['kw'] + "%' OR `description` LIKE '%" + escape(params['kw']) + "%')"
         }
         sql += condition + " AND `link_origin` LIKE '%youtube.com%' AND `created_time` != 'undefined'";
 
