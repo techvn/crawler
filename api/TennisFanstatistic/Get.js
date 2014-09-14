@@ -68,7 +68,7 @@ function Get() {
                     win: 15,
                     vote: 20
                 },
-                'week': '35/2014',
+                'year': '35/2014',
                 'tournament': 'Davis Cup, ISR-ARG'
             },
             {
@@ -87,7 +87,7 @@ function Get() {
                     win: 48,
                     vote: 17
                 },
-                'week': '35/2014',
+                'year': '35/2014',
                 'tournament': 'US Open'
             }
         ];
