@@ -25,6 +25,7 @@ app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.methodOverride());
 app.use(app.router);
+app.use(express.bodyParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
@@ -45,11 +46,6 @@ app.get(/^\/api\/(\w+)\/(\w+)\/(?:(\w+))?$/, function (req, res) {
     /*if (req.params[0] != 'v1') {
         method = req.params[2].camelize();
     }*/
-    
-    if(req.method == 'POST') {
-        console.log('Post data capture');
-        method = 'post' + req.params[2].camelize();
-    }
 
     if (apiServer.verifyRequest(req, res)) {
         if (packageName.hasOwnProperty(method)) {
@@ -64,16 +60,11 @@ app.get(/^\/api\/(\w+)\/(\w+)\/(?:(\w+))?$/, function (req, res) {
 app.post(/^\/api\/(\w+)\/(\w+)\/(?:(\w+))?$/, function (req, res) {
     req.params[2] = req.params[2] || 'default';
     var packageName = require('./api/' + req.params[0] + '/' + req.params[1])[req.params[1].camelize()],
-        method = 'get' + req.params[2].camelize();
+        method = 'post' + req.params[2].camelize();
 
     /*if (req.params[0] != 'v1') {
      method = req.params[2].camelize();
      }*/
-    if(req.method == 'POST') {
-        console.log('Post data capture');
-        method = 'post' + req.params[2].camelize();
-    }
-
     if (apiServer.verifyRequest(req, res)) {
         if (packageName.hasOwnProperty(method)) {
             packageName[method](req, res);

@@ -1,6 +1,17 @@
 var SETTING = require('config').Setting,
     REDIS = require('config').Redis,
-    winston = require('winston');
+    winston = require('winston'),
+    qs = require('querystring');
+
+exports.processRequest = function(req, callback) {
+    var body = '';
+    req.on('data', function (data) {
+        body += data;
+    });
+    req.on('end', function () {
+        callback(qs.parse(body));
+    });
+}
 
 var Utils = function () {
     var self = this;
