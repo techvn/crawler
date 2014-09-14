@@ -8,8 +8,12 @@ function Post() {
     self.postAddVote = function (req, res) {
         // Util load form data
         utils.processRequest(req, function(data) {
+            var result = {};
             // data
-            res.json(data);
+            result.result = true;
+            result.message = 'Vote success';
+            result.post = data;
+            res.json(result);
         });
     }
 }
