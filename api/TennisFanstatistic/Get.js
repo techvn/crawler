@@ -71,7 +71,7 @@ function Get() {
                 'year': '35/2014',
                 'tournament': 'Davis Cup, ISR-ARG',
                 'voted' : true,
-                'vote_choose': 'Federer'
+                'vote_choose': 1
             },
             {
                 'id': 2,
@@ -110,7 +110,7 @@ function Get() {
             'year': '35/2014',
             'tournament': 'US Open',
             'voted' : true,
-            'vote_choose': 'Federer',
+            'vote_choose': 1,
             'player_1': {
                 id: 1,
                 name: 'Federer',
