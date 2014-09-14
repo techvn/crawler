@@ -53,6 +53,7 @@ function Get() {
     self.getMatchToday = function (req, res) {
         var result = [
             {
+                'id' : 1,
                 'player_1': {
                     id: 1,
                     name: 'Federer',
