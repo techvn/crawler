@@ -128,7 +128,7 @@ function Get() {
                     'tournament': 'US Ppen',
                     'round': '342',
                     'score': '4-6 7-6(4) 3-6',
-                    'win': false
+                    'win': 'Roger Federer'
                 }
             ]
         }
