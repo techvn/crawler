@@ -69,7 +69,9 @@ function Get() {
                     vote: 20
                 },
                 'year': '35/2014',
-                'tournament': 'Davis Cup, ISR-ARG'
+                'tournament': 'Davis Cup, ISR-ARG',
+                'voted' : true,
+                'vote_choose': 'Federer'
             },
             {
                 'id': 2,
@@ -88,7 +90,9 @@ function Get() {
                     vote: 17
                 },
                 'year': '35/2014',
-                'tournament': 'US Open'
+                'tournament': 'US Open',
+                'voted' : false,
+                'vote_choose': ''
             }
         ];
 
@@ -105,6 +109,8 @@ function Get() {
             'id': 1,
             'year': '35/2014',
             'tournament': 'US Open',
+            'voted' : true,
+            'vote_choose': 'Federer',
             'player_1': {
                 id: 1,
                 name: 'Federer',
