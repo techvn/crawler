@@ -42,9 +42,9 @@ app.get(/^\/api\/(\w+)\/(\w+)\/(?:(\w+))?$/, function (req, res) {
     var packageName = require('./api/' + req.params[0] + '/' + req.params[1])[req.params[1].camelize()],
         method = 'get' + req.params[2].camelize();
 
-    if (req.params[0] != 'v1') {
+    /*if (req.params[0] != 'v1') {
         method = req.params[2].camelize();
-    }
+    }*/
 
     if (apiServer.verifyRequest(req, res)) {
         if (packageName.hasOwnProperty(method)) {
