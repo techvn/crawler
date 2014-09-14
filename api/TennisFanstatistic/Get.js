@@ -131,6 +131,72 @@ function Get() {
         res.json(result);
     }
 
+    // News --------------
+    self.getListNews = function (req, res) {
+        var result = [
+            {
+                id: 1,
+                title: 'Title of news',
+                brief: 'Brief for news',
+                link: 'Link detail of news if don\'t have crawled content',
+                'thumb': 'Link to thumb image'
+            },
+            {
+                id: 2,
+                title: 'Title of news',
+                brief: 'Brief for news',
+                link: 'Link detail of news if don\'t have crawled content',
+                'thumb': 'Link to thumb image'
+            }
+        ];
+        res.json(result);
+    }
+
+    self.getNewDetail = function (req, res) {
+        var result = {
+            id: 1,
+            title: 'Title of news',
+            brief: 'Brief for news',
+            link: 'Link detail of news if don\'t have crawled content',
+            'thumb': 'Link to thumb image',
+            content: 'Full description text hear'
+        };
+        res.json(result);
+    }
+
+
+    // Video -------------
+    self.getListVideo = function (req, res) {
+        var result = [
+            {
+                id: 1,
+                title: 'Title of video video',
+                brief: 'Brief for video',
+                thumb: 'Link to thumb image'
+            },
+            {
+                id: 2,
+                title: 'Title of video video',
+                brief: 'Brief for video',
+                thumb: 'Link to thumb image'
+            }
+        ];
+        res.json(result);
+    }
+    self.getVideoDetail = function (req, res) {
+        var result = {
+            id: 1,
+            title: 'Title of video',
+            brief: 'Brief for video',
+            link: 'Link detail of news if don\'t have crawled content',
+            thumb: 'Link to thumb image',
+            content: 'Full description text hear',
+            video: 'iframe embed or id of youtube link'
+        };
+        res.json(result);
+    }
+
+
     // Check user voted or not by user_id, match_id and player
     self.getCheckUserVote = function (req, res) {
         var result = {};
