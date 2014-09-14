@@ -53,7 +53,7 @@ function Get() {
     self.getMatchToday = function (req, res) {
         var result = [
             {
-                'id' : 1,
+                'id': 1,
                 'player_1': {
                     id: 1,
                     name: 'Federer',
@@ -102,11 +102,9 @@ function Get() {
      */
     self.getHeadToHead = function (rea, res) {
         var result = {
-            'current_match': {
-                'id' : 1,
-                'year' : '35/2014',
-                'tournament' : 'US Open'
-            },
+            'id': 1,
+            'year': '35/2014',
+            'tournament': 'US Open',
             'player_1': {
                 id: 1,
                 name: 'Federer',
