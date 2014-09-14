@@ -72,6 +72,7 @@ function Get() {
                 'tournament': 'Davis Cup, ISR-ARG'
             },
             {
+                'id': 2,
                 'player_1': {
                     id: 8,
                     name: 'Betsy Abbas',
