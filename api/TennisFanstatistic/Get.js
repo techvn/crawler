@@ -13,6 +13,78 @@ function Get() {
     // Get player detail
     // Params: id
     self.getPlayerDetail = function (req, res) {
+        // Load player
+        var player_id = req.query.id || 0;
+        playerModel.PlayerModel.getDetail('id,name,avatar,birth,country,des', '`id`=' + player_id, function (data, err) {
+            var result = {};
+            for (var o in data) {
+                result = data[o];
+                break;
+            }
+            result.matches = [];
+            var players = [], load_user = false;
+            // Load matches in histories
+            historyModel.HistoriesModel.getList('id,player_1,player_2', '`player_1`=' + player_id + ' OR `player_2`=' + player_id,
+                null, 'all', function (data, err, refer) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    var inc = 0;
+                    // check get all matches before send data
+                    if (data.length > 0) {
+                        // Load player name
+                        var player = '', comma = '';
+                        for (var o in data) {
+                            player += comma + data[o].player_1 + ',' + data[o].player_2;
+                            comma = ',';
+                        }
+                        playerModel.PlayerModel.getList('id,name', '`id` IN(' + player + ')', null, 'all', function (player_data, err) {
+                            // Re-order user list
+                            if (player_data.length > 0) {
+                                for (var o in player_data) {
+                                    players[player_data[o].id] = player_data[o].name;
+                                }
+                            }
+                            load_user = true;
+                        });
+
+                        // Load matches
+                        for (var o in data) {
+                            historyDetailModel.HistoryDetailModel.getList('*', '`head2head_id`=' + data[o].id, '`id` ASC', 'all', function (match_detail, err, refer) {
+                                for (var o_o in match_detail) {
+                                    match_detail[o_o].player_with = (refer.player_1 = player_id ? refer.player_2 : refer.player_1);
+                                    result.matches.push(match_detail[o_o]);
+                                }
+                                inc++;
+                            }, data[o]);
+                        }
+                    } else {
+                        // No history
+                    }
+                    var timer = setTimeout(function () {
+                        if (inc == Object.keys(data).length & load_user) {
+                            // Response data
+
+                            if (result.matches.length > 0) {
+                                for (var o in result.matches) {
+                                    if (typeof players[result.matches[o].player_with] !== 'undefined') {
+                                        result.matches[o].player_with = players[result.matches[o].player_with];
+                                        /*result.matches[o].winner = utils.getWinner(player_id, result.matches[o].player_with, result.matches[o].score);
+                                         var sql = 'UPDATE `' + historyDetailModel.HistoryDetailObject().table + '` SET `winner`=' + result.matches[o].winner + ' WHERE `id`=' + result.matches[o].id;
+                                         historyDetailModel.HistoryDetailModel.executeQuery(sql, function(data, err) { });*/
+                                        result.matches[o].winner = (result.matches[o].winner = player_id ? true : false);
+                                    }
+                                }
+                            }
+                            res.json(result);
+                        }
+                    }, 100);
+                });
+            // ------------------
+
+        });
+        return;
+
         var result = playerModel.PlayerObject({'field': {
                 'name': 'Roger Federer',
                 'avatar': '',
@@ -51,6 +123,46 @@ function Get() {
      * @param res
      */
     self.getMatchToday = function (req, res) {
+
+        var limit = req.query.limit || '';
+        // Load matches
+        var matches = [];
+        var players = [];
+        matchModel.MatchModel.getList('`id`,`year`,`tournament`,`player_1`,`player_2`', null, 'id ASC', limit, function (list_matches, err) {
+            // Load list players
+            if (err) {
+                res.json(err);
+                return;
+            }
+            if (list_matches.length > 0) {
+                // player id
+                var player_id = '', comma = '';
+                for (var o in list_matches) {
+                    player_id += comma + list_matches[o].player_1 + ',' + list_matches[o].player_2;
+                    comma = ',';
+                }
+                playerModel.PlayerModel.getList('`id`,`name`,`avatar`,`win`', '`id` IN (' + player_id + ')', null, 'all', function (list_user, err) {
+                    if (err) {
+                        res.json(err);
+                        return;
+                    }
+                    if (list_user.length > 0) {
+                        for (var o in list_user) {
+                            players[list_user[o].id] = list_user[o];
+                        }
+                        for (var o in list_matches) {
+                            list_matches[o].player_1 = players[list_matches[o].player_1];
+                            list_matches[o].player_2 = players[list_matches[o].player_2];
+                        }
+                    }
+                    res.json(list_matches);
+                });
+            } else {
+                res.json(list_matches);
+            }
+        });
+        return;
+
         var result = [
             {
                 'id': 1,
@@ -70,7 +182,7 @@ function Get() {
                 },
                 'year': '35/2014',
                 'tournament': 'Davis Cup, ISR-ARG',
-                'voted' : true,
+                'voted': true,
                 'vote_choose': 1
             },
             {
@@ -91,11 +203,10 @@ function Get() {
                 },
                 'year': '35/2014',
                 'tournament': 'US Open',
-                'voted' : false,
-                'vote_choose': ''
+                'voted': false,
+                'vote_choose': 0
             }
         ];
-
         res.json(result);
     }
 
@@ -104,12 +215,76 @@ function Get() {
      * @param rea
      * @param res
      */
-    self.getHeadToHead = function (rea, res) {
+        self.getHeadToHead = function (req, res) {
+        // Get match detail by match id
+        var match_id = req.query.id || 0;
+        matchModel.MatchModel.getList('`id`,`year`,`tournament`,`player_1`,`player_2`', '`id`=' + match_id, 'id ASC', '1', function (list_matches, err) {
+            // Load list players
+            if (err) {
+                res.json(err);
+                return;
+            }
+            if (list_matches.length > 0) {
+                // player id
+                var player_id = '', comma = '';
+                for (var o in list_matches) {
+                    player_id += comma + list_matches[o].player_1 + ',' + list_matches[o].player_2;
+                    comma = ',';
+                }
+                var players = [];
+                playerModel.PlayerModel.getList('`id`,`name`,`avatar`,`win`,`des`', '`id` IN (' + player_id + ')', null, 'all', function (list_user, err) {
+                    if (err) {
+                        res.json(err);
+                        return;
+                    }
+                    if (list_user.length > 0) {
+                        for (var o in list_user) {
+                            // Load vote num here
+                            list_user[o].vote = 0;
+                            
+                            players[list_user[o].id] = list_user[o];
+                        }
+                        for (var o in list_matches) {
+                            list_matches[o].player_1 = players[list_matches[o].player_1];
+                            list_matches[o].player_2 = players[list_matches[o].player_2];
+
+                            list_matches[o].matches = [];
+                            // Load history of them
+                            var sql = 'SELECT b.`id`, b.`year`, b.`tournament`, b.`surface`, b.`round`, b.`score`, b.`winner`, a.`player_1`, a.`player_2` FROM `histories_statistic` AS a INNER JOIN `histories_detail` AS b ON a.`id`=b.`head2head_id` WHERE ' +
+                                '(a.`player_1`=' + list_matches[o].player_1.id + ' AND a.`player_2`=' + list_matches[o].player_2.id + ')'
+                                + ' OR (a.`player_2`=' + list_matches[o].player_1.id + ' AND a.`player_1`=' + list_matches[o].player_2.id + ') ORDER BY b.`id` ASC';
+
+                            //res.send(sql); return;
+
+                            historyModel.HistoriesModel.executeQuery(sql, function (data, err, refer) {
+                                if (err) {
+                                    res.json(list_matches);
+                                    return;
+                                }
+                                for(var _o in data) {
+                                    data[_o].player_with = (data[_o].winner == data[_o].player_1 ? players[data[_o].player_2].name : players[data[_o].player_1].name);
+                                    data[_o].winner = players[data[_o].winner].name;
+                                    delete data[_o].player_1;
+                                    delete data[_o].player_2;
+                                    list_matches[o].matches.push(data[_o]);
+                                }
+                                res.json(list_matches);
+                            }, o);
+                        }
+                    } else
+                        res.json(list_matches);
+                });
+            } else {
+                res.json(list_matches);
+            }
+        });
+        return;
+
         var result = {
             'id': 1,
             'year': '35/2014',
             'tournament': 'US Open',
-            'voted' : true,
+            'voted': true,
             'vote_choose': 1,
             'player_1': {
                 id: 1,

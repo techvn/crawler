@@ -1,11 +1,17 @@
 /**
  * Created by Administrator PC on 9/13/14.
  */
-
+var utils = require('./../utils/Utils').Utils;
+var config = {
+    "host": "localhost",
+    "user": "root",
+    "password": "vertrigo",
+    'database': "tennis_fanstatistic"
+};
 var HistoryObject = module.exports.HistoryObject = function(s) {
     var s = s || {};
 
-    this.table = s.table || 'histories';
+    this.table = s.table || 'histories_statistic';
 
     var f = {};
     s.field = s.field || {};
@@ -14,18 +20,18 @@ var HistoryObject = module.exports.HistoryObject = function(s) {
     f.player_1 = s.field.player_1 || 0;
     f.player_2 = s.field.player_2 || 0;
     f.player1_win = s.field.player1_win || 0;
-    f.player1_voted = s.field.player1_voted || 0;
-    f.player2_voted = s.field.player2_voted || 0;
+    f.player2_win = s.field.player2_win || 0;
+    /*f.player1_voted = s.field.player1_voted || 0;
+    f.player2_voted = s.field.player2_voted || 0;*/
 
     this.field = f;
 
     return this;
 }
 
-function historiesModel() {
+function HistoriesModel() {
     var self = this;
 
-    var self = this;
     /**
      * Load list player from database
      * @param fields Custom field query
@@ -34,14 +40,14 @@ function historiesModel() {
      * @param limit Limit query rows, default 10 rows (0,10)
      * @param callback Function return 2 params: Rows and Error if it has something wrong
      */
-    self.getList = function(fields, con, order, limit, callback) {
-        var conn = utils.getMySql();
-        var sql = "SELECT " + (fields ? fields : '*') + " FROM `" + HistoryObject.table
+    self.getList = function(fields, con, order, limit, callback, refer) {
+        var conn = utils.getMySql(config);
+        var sql = "SELECT " + (fields ? fields : '*') + " FROM `" + HistoryObject().table
             + "` WHERE " + (con ? con : '1=1')
-            + ' ORDER BY ' + (order ? order : '`id` DESC') + ' LIMIT ' + (limit ? limit : '0, 10');
+            + ' ORDER BY ' + (order ? order : '`id` DESC') + (limit != 'all' ? ' LIMIT ' + (limit ? limit : '0, 10') : '');
         conn.query(sql, function(err, rows, fields) {
             if(err) { err['sql'] = sql; }
-            callback(rows, err);
+            callback(rows, err, refer);
         });
         utils.endMySql(conn);
     }
@@ -52,9 +58,9 @@ function historiesModel() {
      * @param con
      * @param callback
      */
-    self.getDetailPlayer = function(field, con, callback) {
-        var conn = utils.getMySql();
-        var sql = "SELECT " + (fields ? fields : '*') + " FROM `" + HistoryObject.table
+    self.getDetail = function(field, con, callback) {
+        var conn = utils.getMySql(config);
+        var sql = "SELECT " + (field ? field : '*') + " FROM `" + HistoryObject().table
             + "` WHERE " + (con ? con : '1=1');
         conn.query(sql, function(err, rows, fields) {
             if(err) { err['sql'] = sql; }
@@ -63,8 +69,66 @@ function historiesModel() {
         utils.endMySql(conn);
     }
 
-    self.getUtils = function(sql, callback) {
-        var conn = utils.getMySql();
+    self.insertSingle = function(data, callback, refer) {
+        var conn = utils.getMySql(config);
+        var field = '',
+            value = '',
+            comma = '';
+        for(var o in data) {
+            field += comma + '`' + o + '`';
+            value += comma + "'" + data[o] + "'";
+            comma = ',';
+        }
+        var sql = "INSERT IGNORE INTO " + HistoryObject().table
+            + "(" + field + ") VALUE(" + value + ")";
+        conn.query(sql, function(err, rows, fields) {
+            if(err) { err['sql'] = sql; }
+            // rows data
+            /*{
+             "fieldCount": 0,
+             "affectedRows": 1,
+             "insertId": 2,
+             "serverStatus": 2,
+             "warningCount": 3,
+             "message": "",
+             "protocol41": true,
+             "changedRows": 0
+             }*/
+            callback(rows, err, refer);
+        });
+        utils.endMySql(conn);
+    }
+
+    self.insertMulti = function(data, callback, refer) {
+        var conn = utils.getMySql(config);
+        var field = '',
+            value = '',
+            comma = '',
+            inc = 0;
+        for(var o in data) {
+            value += comma + "("
+            comma = ''; // Reset coma
+            for(var o2 in data[o]) {
+                if(inc == 0) {
+                    field += comma + '`' + o2 + '`';
+                }
+                value += comma + "'" + data[o][o2] + "'";
+                comma = ',';
+            }
+            inc++;
+            value += ")";
+        }
+        var sql = "INSERT IGNORE INTO " + HistoryObject().table
+            + "(" + field + ") VALUES" + value;
+        conn.query(sql, function(err, rows, fields) {
+            if(err) { err['sql'] = sql; }
+            callback(rows, err, refer);
+        });
+        utils.endMySql(conn);
+    }
+
+    self.executeQuery = function(sql, callback) {
+        var conn = utils.getMySql(config);
         conn.query(sql, function(err, rows, fields) {
             if(err) { err['sql'] = sql; }
             callback(rows, err);
@@ -72,64 +136,5 @@ function historiesModel() {
         utils.endMySql(conn);
     }
 
-    // -------------------
-
-    self.insertNews = function (data) {
-
-        var connection = utils.getMySql();
-
-        // Interaction with db
-        // do something ...
-        var date = require('./../utils/Utils').getDateDbString();
-
-        var sql = "INSERT IGNORE INTO `news` (`title`, `brief`, `main_img`, `description`, `author`, `created_time`, "
-            + "`cat_id`, `viewed`, `likeCount`, `video`, `duration`, `link_origin`, `crawled_time`, `status`)"
-            + " values('" + escape(data['title']) + "', '" + escape(data['brief']) + "', '"
-            + data['img'] + "', '" + escape(data['content']) + "', '"
-            + data['author'] + "', '" + data['publish'] + "', '" + data['cid'] + "', '"
-            + data['viewed'] + "', '" + data['likeCount'] + "', '" + data['youtubeId']
-            + "', " + data['duration'] + ",'" + data['link'] + "', '" + date + "', 1)";
-
-        connection.query(sql, function (err, rows, fields) {
-            if (!err) {
-                // Do something if error
-                console.log('Insert link ' + data['link'] + ' success.');
-            } else
-                console.log(err);
-        });
-        //console.log(sql);
-
-        utils.endMySql(connection);
-    }
-
-    /**
-     * Insert multi rows by sql query
-     * @param obj: Array 2 dimension
-     */
-    self.insertMultiNews = function(obj, callback) {
-        var connection = utils.getMySql();
-
-        // Interaction with db
-        var date = require('./../utils/Utils').getDateDbString();
-
-        var value = '', comma = '';
-        for(var i in obj) {
-            var data = obj[i];
-            if(obj[i].publish == 'undefined') { continue; }
-            value += comma + "('" + escape(data['title']) + "', '" + escape(data['brief']) + "', '"
-                + data['thumb'] + "', '" + data['img'] + "', '" + escape(data['content']) + "', '"
-                + data['author'] + "', '" + data['publish'] + "', '" + data['cid'] + "', '"
-                + data['viewed'] + "', '" + data['likeCount'] + "', '" + data['youtubeId']
-                + "', '" + data['duration']  + "','" + data['link'] + "', '" + date + "', 1)";
-            comma = ',';
-        }
-        var sql = "INSERT IGNORE INTO `news` (`title`, `brief`, `thumb`, `main_img`, `description`, `author`, `created_time`, "
-            + "`cat_id`, `viewed`, `likeCount`, `video`, `duration`, `link_origin`, `crawled_time`, `status`) values" + value;
-        connection.query(sql, function(err, rorws, field) {
-            callback(sql, err);
-        });
-        // End connection
-        utils.endMySql(connection);
-    }
 }
-exports.historiesModel = new historiesModel();
+exports.HistoriesModel = new HistoriesModel();
