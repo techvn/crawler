@@ -107,6 +107,8 @@ function TennisMatchStat() {
                             __result[index].tournament = __result[index - 1].tournament;
                             __result[index].year = __result[index - 1].year;
                         }
+                        __result[index].player_1 = $($(this).find('td')[2]).text().replace(/'/i, "\\'");
+                        __result[index].player_2 = $($(this).find('td')[3]).text().replace(/'/i, "\\'");
                         __result[index].surface = $($(this).find('td')[1]).text().replace(/'/i, "\\'");
                         __result[index].score = $($(this).find('td')[4]).text().replace(/'/i, "\\'");
                         __result[index].type = $($(this).find('td')[6]).text().replace(/'/i, "\\'");

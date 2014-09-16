@@ -5,8 +5,9 @@ var utils = require('./../../utils/Utils').Utils,
     matches = require('./../../model/TF_Matches'),
     players = require('./../../model/TF_Player'),
     histories_statistic = require('./../../model/TF_Histories'),
-    histories_detail = require('./../../model/TF_HistoriesDetail');
-tennisStat = require('./../../utils/TennisMatchStat').TennisMatchStat;
+    wiki = require('./../../utils/WikiPediaHtmlParse').WikiPediaHtmlParse,
+    histories_detail = require('./../../model/TF_HistoriesDetail'),
+    tennisStat = require('./../../utils/TennisMatchStat').TennisMatchStat;
 
 function Crawler() {
     var self = this;
@@ -105,12 +106,49 @@ function Crawler() {
         var player_2 = req.query.player_2 || 0;
         var map_player_1_id = req.query.map_1 || 0;
         var map_player_2_id = req.query.map_2 || 0;
+        var name_1 = req.query.name_1 || '';
+        var name_2 = req.query.name_2 || '';
+
+        if(name_1 == '') {
+            res.json({
+                'msg' : 'Thieu tham so name_1'
+            }); return;
+        }
+
+        if(name_2 == '') {
+            res.json({
+                'msg' : 'Thieu tham so name_2'
+            }); return;
+        }
+        if(player_1  == 0) {
+            res.json({
+                'msg' : 'Thieu tham so player_1'
+            }); return;
+        }
+        if(player_2  == 0) {
+            res.json({
+                'msg' : 'Thieu tham so player_2'
+            }); return;
+        }
+        if(map_player_1_id == 0) {
+            res.json({
+                'msg' : 'Thieu tham so map_1'
+            }); return;
+        }
+        if(map_player_2_id == 0) {
+            res.json({
+                'msg' : 'Thieu tham so map_2'
+            }); return;
+        }
+        // ---------------
 
         var url = 'http://tennis.matchstat.com/index.php?ControllerName=Compare&Id_Player1='
             + map_player_1_id + '&Id_Player2=' + map_player_2_id;
         console.log(url);
 
         tennisStat.LoadHeadToHead(url, function (head2head_data, err) {
+            /*res.send(head2head_data);
+            return;*/
             // Check has been history statistic
             histories_statistic.HistoriesModel.getDetail('`id`', '`player_1`=' + player_1 + ' AND player_2=' + player_2, function (data_detail, err) {
                 if (err) {
@@ -123,16 +161,32 @@ function Crawler() {
                         histories_statistic_id = data_detail[o].id;
                         break;
                     }
+                    console.log('histories_statistic_id: ' + histories_statistic_id);
                     // Add headToHead id for this data
                     for (var o in head2head_data) {
+                        var param1 = player_1, param2 = player_2;
+                        if(head2head_data[o].player_1 == name_1) {
+                            param1 = player_1;
+                            param2 = player_2;
+                        } else {
+                            param1 = player_2;
+                            param2 = player_1;
+                        }
+                        // Delete key
+                        delete head2head_data[o].player_1;
+                        delete head2head_data[o].player_2;
+
                         head2head_data[o].head2head_id = histories_statistic_id;
+                        head2head_data[o].winner = utils.getWinner(param1, param2, head2head_data[o].score);
                     }
                     // Add histories detail for this match
                     histories_detail.HistoryDetailModel.insertMulti(head2head_data, function (data, err) {
                         // Done
                         if(err) {
                             console.log(err);
-                        }
+                            res.send(head2head_data);
+                        } else
+                            res.send(head2head_data);
                     });
 
                 } else { // Not existed, so insert new history statistic
@@ -162,11 +216,14 @@ function Crawler() {
                         // Add histories detail for this match
                         histories_detail.HistoryDetailModel.insertMulti(head2head_data, function (data, err) {
                             // Done
+                            if(err) {
+                                console.log(err);
+                            }
                         })
                     })
                 }
             });
-            res.json(head2head_data);
+            //res.json(head2head_data);
         });
     }
 
@@ -213,6 +270,46 @@ function Crawler() {
             res.json(result);
 
         }, null);
+    }
+
+    self.getAllPlayerInfoOnWiki = function(req, res) {
+        // Load list player
+        players.PlayerModel.getList('`id`,`name`', '`avatar` IS NULL OR `avatar` = ""', null, 'all', function(data,err) {
+            for(var o in data) {
+                req.query.name = data[o].name;
+                req.query.player_id = data[o].id;
+                req.query.renderJson = false;
+                // Crawl info
+                self.getPlayerInfoOnWiki(req, res);
+                //break;
+            }
+            res.json(err || data);
+        })
+    }
+
+    self.getPlayerInfoOnWiki = function(req, res) {
+        var url = 'http://en.wikipedia.org/wiki/',
+            player = req.query.name,
+            player_id = req.query.player_id,
+            renderJson = req.query.renderJson;
+        wiki.getPlayerInfo(url + player.replace(/\s/i, '_'), function(data, err) {
+            // Update data
+            var sql = "UPDATE `" + players.PlayerObject().table
+                + "` SET `avatar`='" + data.avatar + "', `country`='" + data.country + "', `des`='" + data.des.replace(/['ˈ]/g, "\\'") + "' WHERE `id`=" + player_id;
+            //res.send(sql); return;
+            players.PlayerModel.executeQuery(sql, function(data, err) {
+                if(err) {
+                    console.log(err);
+                }
+                console.log(renderJson + ': option');
+                if(!renderJson) {
+                    return;
+                }
+                res.json(data);
+            })
+            //res.send(data);
+        });
+
     }
 }
 

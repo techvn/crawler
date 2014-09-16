@@ -63,6 +63,7 @@ var PlayerModel = function() {
         var conn = utils.getMySql(config);
         var sql = "SELECT " + (field ? field : '*') + " FROM `" + PlayerObject().table
             + "` WHERE " + (con ? con : '1=1');
+
         conn.query(sql, function(err, rows, fields) {
             if(err) { err['sql'] = sql; }
             callback(rows, err, refer);

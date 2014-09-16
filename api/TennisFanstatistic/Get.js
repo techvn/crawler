@@ -60,6 +60,7 @@ function Get() {
                         }
                     } else {
                         // No history
+                        load_user = true;
                     }
                     var timer = setTimeout(function () {
                         if (inc == Object.keys(data).length & load_user) {
@@ -215,7 +216,7 @@ function Get() {
      * @param rea
      * @param res
      */
-        self.getHeadToHead = function (req, res) {
+    self.getHeadToHead = function (req, res) {
         // Get match detail by match id
         var match_id = req.query.id || 0;
         matchModel.MatchModel.getList('`id`,`year`,`tournament`,`player_1`,`player_2`', '`id`=' + match_id, 'id ASC', '1', function (list_matches, err) {
@@ -241,7 +242,7 @@ function Get() {
                         for (var o in list_user) {
                             // Load vote num here
                             list_user[o].vote = 0;
-                            
+
                             players[list_user[o].id] = list_user[o];
                         }
                         for (var o in list_matches) {
@@ -261,7 +262,7 @@ function Get() {
                                     res.json(list_matches);
                                     return;
                                 }
-                                for(var _o in data) {
+                                for (var _o in data) {
                                     data[_o].player_with = (data[_o].winner == data[_o].player_1 ? players[data[_o].player_2].name : players[data[_o].player_1].name);
                                     data[_o].winner = players[data[_o].winner].name;
                                     delete data[_o].player_1;

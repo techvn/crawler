@@ -146,6 +146,7 @@ var Utils = function () {
         var score = data.split(/\s/);
         var winner_1 = 0, winner_2 = 0, tmp = []; // default player 1
         for(var o in score) {
+            if(score[o].indexOf('-') == -1) { continue; }
             tmp = score[o].split(/-/);
             if(parseInt(tmp[0]) > parseInt(tmp[1].substr(0,1))) {
                 winner_1++;

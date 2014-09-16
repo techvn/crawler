@@ -111,6 +111,7 @@ var HistoryDetailModel = function () {
         }
         var sql = "INSERT IGNORE INTO " + HistoryDetailObject().table
             + "(" + field + ") VALUES" + value;
+        console.log(sql);
         conn.query(sql, function(err, rows, fields) {
             if(err) { err['sql'] = sql; }
             callback(rows, err, refer);
