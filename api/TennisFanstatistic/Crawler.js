@@ -5,9 +5,11 @@ var utils = require('./../../utils/Utils').Utils,
     matches = require('./../../model/TF_Matches'),
     players = require('./../../model/TF_Player'),
     news = require('./../../model/TF_News'),
+    video = require('./../../model/TF_Video'),
     histories_statistic = require('./../../model/TF_Histories'),
     wiki = require('./../../utils/WikiPediaHtmlParse').WikiPediaHtmlParse,
     tennis_news = require('./../../utils/TennisNewsHtmlParse').TennisNewsHtmlParse,
+    tennis_video = require('./../../utils/YoutubeHtmlParse').YouTubeHtmlParse,
     histories_detail = require('./../../model/TF_HistoriesDetail'),
     tennisStat = require('./../../utils/TennisMatchStat').TennisMatchStat;
 
@@ -332,6 +334,26 @@ function Crawler() {
             res.json(data);
         });
         //news.NewsModel.getNews()
+    }
+
+
+    self.getVideo = function(req, res) {
+        var url = 'https://www.youtube.com/results?search_sort=video_date_uploaded&search_query=tennis+highlight';
+        tennis_video.getTFVideo(url, function(data, err) {
+            var result = [];
+            // Revert data key
+            console.log('Length data: ' + data.length);
+            if(data.length > 0) {
+                for(var i = data.length - 1; i >= 0; i--) {
+                    if(typeof data[i].video != 'undefined')
+                        result.push(data[i]);
+                }
+            }
+            video.VideoModel.insertMulti(result, function(result, err) {
+                res.json(err || result);
+            })
+            //res.json(result);
+        });
     }
 }
 

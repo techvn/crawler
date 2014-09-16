@@ -7,6 +7,7 @@ var utils = require('./../../utils/Utils').Utils,
     matchModel = require('./../../model/TF_Matches'),
     historyModel = require('./../../model/TF_Histories'),
     news = require('./../../model/TF_News'),
+    video = require('./../../model/TF_Video'),
     historyDetailModel = require('./../../model/TF_HistoriesDetail');
 function Get() {
     var self = this;
@@ -377,7 +378,17 @@ function Get() {
 
     // Video -------------
     self.getListVideo = function (req, res) {
-        var result = [
+        var limit = req.query.limit || '0,10',
+            kw = req.query.kw || '',
+            conn = '1=1';
+        if(kw) {
+            conn = '`title` LIKE "%' + kw + '%" OR `brief` LIKE "%' + kw + '%"';
+        }
+
+        video.VideoModel.getList('`id`,`title`,`thumb`,`brief`,`link`,`video`', conn, '`id` DESC' , limit, function(result, err) {
+            res.json(err || result);
+        })
+        /*var result = [
             {
                 id: 1,
                 title: 'Title of video video',
@@ -391,10 +402,21 @@ function Get() {
                 thumb: 'Link to thumb image'
             }
         ];
-        res.json(result);
+        res.json(result);*/
     }
     self.getVideoDetail = function (req, res) {
-        var result = {
+        var news_id = req.query.id || 0;
+        video.VideoModel.getDetail('*', '`id`=' + news_id, function(result, err) {
+            if(!err) {
+                for(var o in result) {
+                    result[o].created_time = result[o].created_time.toString();
+                    result = result[o];
+                    break;
+                }
+            }
+            res.json(err || result);
+        })
+        /*var result = {
             id: 1,
             title: 'Title of video',
             brief: 'Brief for video',
@@ -403,7 +425,7 @@ function Get() {
             content: 'Full description text hear',
             video: 'iframe embed or id of youtube link'
         };
-        res.json(result);
+        res.json(result);*/
     }
 
 

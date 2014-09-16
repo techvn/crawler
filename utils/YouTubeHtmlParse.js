@@ -79,7 +79,7 @@ var YouTubeHtmlParse = function () {
     }
 
     self.ParseDetailApi = function (link, callback, obj, refer) {
-        var crawler = utils.getCrawler(),
+        var crawler = utils.getCrawler(null),
             result = obj || {};
         crawler.queue([
             {
@@ -101,6 +101,72 @@ var YouTubeHtmlParse = function () {
                         result[d.getTime()] = e;
                     }
                     callback(result, refer);
+                }
+            }
+        ]);
+    }
+
+    self.getTFVideo = function(url, callback) {
+        var crawler = utils.getCrawler(null);
+        crawler.queue([
+            {
+                'uri': url,
+                'callback': function (error, result, $) {
+                    $ = cheerio.load(result.body);
+                    var data = [],
+                        inc = 0;
+
+                    $('#results div.yt-lockup').each(function (index) {
+                        data[index] = {};
+                        var obj = {};//youTube.YouTube(null);
+                        obj.title = $(this).find('h3.yt-lockup-title').text().replace(/'/g, "`");
+                        /*obj.thumb = (typeof $(this).find('img').attr('data-thumb') != 'undefined') ?
+                                    $(this).find('img').attr('data-thumb') : $(this).find('img').attr('src');*/
+                        obj.brief = $(this).find('div.yt-lockup-description').text().replace(/'/g, "`");
+                        obj.link = 'https://youtube.com' + $(this).find('h3.yt-lockup-title').find('a').attr('href');
+                        obj.video = $(this).find('h3.yt-lockup-title').find('a').attr('href').split('=')[1];
+
+                        data[index] = obj;
+                        // Get content
+                        self.getTFVideoDetail('https://gdata.youtube.com/feeds/api/videos/' + obj.video + '?v=2&alt=jsonc', function(result, err, refer){
+                            if(!err) {
+                                for(var o in result) {
+                                    data[refer][o] = result[o];
+                                }
+                            }
+                            inc++;
+                        }, index)
+                    });
+
+                    var timer = setInterval(function() {
+                        if(inc == $('#results div.yt-lockup').length) {
+                            callback(data, null);
+                        }
+                    }, 250);
+                }
+            }
+        ]);
+    }
+    self.getTFVideoDetail = function(url, callback, refer) {
+        var crawler = utils.getCrawler(null);
+        crawler.queue([
+            {
+                uri: url,
+                callback: function (err, __result, $) {
+                    var data = JSON.parse(__result.body),
+                        result = {};
+                    try {
+                        //result[data.data.id] = data.data;
+                        //result.img = data.data.thumbnail.hqDefault;
+                        result.posted_time = data.data.updated.substr(0, 19).replace('T', ' ');
+                        result.content = data.data.description.replace(/'/g, "`");
+                        result.thumb = data.data.thumbnail.sqDefault;
+                        result.created_time = require('./../utils/Utils').getDateDbString();
+
+                    } catch (e) {
+
+                    }
+                    callback(result, null, refer);
                 }
             }
         ]);
