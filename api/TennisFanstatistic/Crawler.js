@@ -4,8 +4,10 @@
 var utils = require('./../../utils/Utils').Utils,
     matches = require('./../../model/TF_Matches'),
     players = require('./../../model/TF_Player'),
+    news = require('./../../model/TF_News'),
     histories_statistic = require('./../../model/TF_Histories'),
     wiki = require('./../../utils/WikiPediaHtmlParse').WikiPediaHtmlParse,
+    tennis_news = require('./../../utils/TennisNewsHtmlParse').TennisNewsHtmlParse,
     histories_detail = require('./../../model/TF_HistoriesDetail'),
     tennisStat = require('./../../utils/TennisMatchStat').TennisMatchStat;
 
@@ -310,6 +312,26 @@ function Crawler() {
             //res.send(data);
         });
 
+    }
+
+    // ------------------------------
+
+    self.getNews = function(req, res) {
+        var url = 'http://www.tennis.com/more-subchannel-articles/breaking-news/0/100/';
+        tennis_news.getTennisNews(url, function(data, err) {
+            var result = [];
+            // Revert data key
+            if(data.length > 0) {
+                for(var i = data.length - 1; i >= 0; i--) {
+                    result.push(data[i]);
+                }
+            }
+            news.NewsModel.insertMulti(result, function(result, err) {
+                console.log(err || result);
+            })
+            res.json(data);
+        });
+        //news.NewsModel.getNews()
     }
 }
 

@@ -6,6 +6,7 @@ var utils = require('./../../utils/Utils').Utils,
     playerModel = require('./../../model/TF_Player'),
     matchModel = require('./../../model/TF_Matches'),
     historyModel = require('./../../model/TF_Histories'),
+    news = require('./../../model/TF_News'),
     historyDetailModel = require('./../../model/TF_HistoriesDetail');
 function Get() {
     var self = this;
@@ -319,7 +320,19 @@ function Get() {
 
     // News --------------
     self.getListNews = function (req, res) {
-        var result = [
+
+        var limit = req.query.limit || '0,10',
+            kw = req.query.kw || '',
+            conn = '1=1';
+        if(kw) {
+            conn = '`title` LIKE "%' + kw + '%" OR `brief` LIKE "%' + kw + '%"';
+        }
+
+        news.NewsModel.getList('`id`,`title`,`thumb`,`brief`,`link`', conn, '`id` DESC' , limit, function(result, err) {
+            res.json(err || result);
+        })
+
+        /*var result = [
             {
                 id: 1,
                 title: 'Title of news',
@@ -335,11 +348,22 @@ function Get() {
                 'thumb': 'Link to thumb image'
             }
         ];
-        res.json(result);
+        res.json(result);*/
     }
 
-    self.getNewDetail = function (req, res) {
-        var result = {
+    self.getNewsDetail = function (req, res) {
+        var news_id = req.query.id || 0;
+        news.NewsModel.getDetail('*', '`id`=' + news_id, function(result, err) {
+            if(!err) {
+                for(var o in result) {
+                    result[o].created_time = result[o].created_time.toString();
+                    result = result[o];
+                    break;
+                }
+            }
+            res.json(err || result);
+        })
+        /*var result = {
             id: 1,
             title: 'Title of news',
             brief: 'Brief for news',
@@ -347,7 +371,7 @@ function Get() {
             'thumb': 'Link to thumb image',
             content: 'Full description text hear'
         };
-        res.json(result);
+        res.json(result);*/
     }
 
 
