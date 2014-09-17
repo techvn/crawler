@@ -385,7 +385,7 @@ function Get() {
             conn = '`title` LIKE "%' + kw + '%" OR `brief` LIKE "%' + kw + '%"';
         }
 
-        video.VideoModel.getList('`id`,`title`,`thumb`,`brief`,`link`,`video`', conn, '`id` DESC' , limit, function(result, err) {
+        video.VideoModel.getList('`id`,`title`,`thumb`,`brief`,`link`,`video`, `posted_time`', conn, '`id` DESC' , limit, function(result, err) {
             res.json(err || result);
         })
         /*var result = [
