@@ -220,8 +220,12 @@ function YouTube() {
      * @param res
      */
     self.getUpdateInfo = function(req, res) {
+        var limit = req.query.limit || 10,
+            params = {};
+        params.limit = limit;
+
         // Load all video
-        youTubeModel.youTubeModel.getList({}, function(result, err) {
+        youTubeModel.youTubeModel.getList(params, function(result, err) {
             var link = 'https://gdata.youtube.com/feeds/api/videos/',
                 sql = '';
             for(var o in result) {
