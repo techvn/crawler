@@ -233,7 +233,6 @@ function Get() {
                 for (var o in list_matches) {
                     player_id += comma + list_matches[o].player_1 + ',' + list_matches[o].player_2;
                     comma = ',';
-                    list_matches = list_matches[o];
                 }
                 var players = [];
                 playerModel.PlayerModel.getList('`id`,`name`,`avatar`,`win`,`des`', '`id` IN (' + player_id + ')', null, 'all', function (list_user, err) {
@@ -272,11 +271,14 @@ function Get() {
                                     delete data[_o].player_2;
                                     list_matches[o].matches.push(data[_o]);
                                 }
+                                list_matches = list_matches[o];
                                 res.json(list_matches);
                             }, o);
                         }
-                    } else
+                    } else {
+                        list_matches = list_matches[o];
                         res.json(list_matches);
+                    }
                 });
             } else {
                 res.json(list_matches);
