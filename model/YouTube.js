@@ -136,5 +136,14 @@ function youTubeModel() {
         // End connection
         utils.endMySql(connection);
     }
+
+    self.executeQuery = function(sql, callback, refer) {
+        var conn = utils.getMySql();
+        conn.query(sql, function(err, rows, fields) {
+            if(err) { err['sql'] = sql; }
+            callback(rows, err, refer);
+        });
+        utils.endMySql(conn);
+    }
 }
 exports.youTubeModel = new youTubeModel();

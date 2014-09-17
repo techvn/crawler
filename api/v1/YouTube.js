@@ -213,6 +213,31 @@ function YouTube() {
             }, 1000);
         });
     }
+
+    /**
+     * Update viewed, liked of video
+     * @param req
+     * @param res
+     */
+    self.getUpdateInfo = function(req, res) {
+        // Load all video
+        youTubeModel.youTubeModel.getList({}, function(result, err) {
+            var link = 'https://gdata.youtube.com/feeds/api/videos/',
+                sql = '';
+            for(var o in result) {
+                youTubeHtmlParse.ParseDetailApi( link + result[o].video + '?v=2&alt=jsonc', function(data, refer) {
+                    sql = 'UPDATE `news` SET `viewed`=' + data.viewed + ',`likeCount`=' + data.likeCount
+                        + ', `crawled_time`="' + require('./../../utils/Utils').getDateDbString() + '"'
+                        + ' WHERE `video`="' + refer.video + '"';
+                    youTubeModel.youTubeModel.executeQuery(sql, function(data, err){
+                        // After execute query, check here
+                        if(err) console.log(err);
+                    })
+                }, {}, result[o]);
+            }
+            res.json(result);
+        })
+    }
 }
 
 exports.YouTube = new YouTube();
