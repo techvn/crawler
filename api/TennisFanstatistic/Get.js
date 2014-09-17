@@ -281,7 +281,8 @@ function Get() {
                     }
                 });
             } else {
-                res.json(list_matches);
+                // Empty data
+                res.json({});
             }
         });
         return;
