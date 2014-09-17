@@ -233,6 +233,7 @@ function Get() {
                 for (var o in list_matches) {
                     player_id += comma + list_matches[o].player_1 + ',' + list_matches[o].player_2;
                     comma = ',';
+                    list_matches = list_matches[o];
                 }
                 var players = [];
                 playerModel.PlayerModel.getList('`id`,`name`,`avatar`,`win`,`des`', '`id` IN (' + player_id + ')', null, 'all', function (list_user, err) {
