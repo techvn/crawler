@@ -83,7 +83,7 @@ function YouTube() {
         });
     }
 
-    self.getUpdateData = function(req, res) {
+    /*self.getUpdateData = function(req, res) {
         // Read data in database
         var data = youTubeModel.youTubeModel.getUtils(
             "SELECT `video`, `created_time` FROM `news` WHERE `video` != ''",
@@ -108,14 +108,43 @@ function YouTube() {
             var myTimer = setInterval(function() {
                 if(inc == Object.keys(rows).length) {
                     clearInterval(myTimer);
-                    /*youTubeModel.youTubeModel.getUtils(sql, function(rows, err) {
+                    *//*youTubeModel.youTubeModel.getUtils(sql, function(rows, err) {
                         res.send(err || sql);
-                    });*/
+                    });*//*
                     res.json({'result' : 'finished'});
                 }
             }, 500);
         })
 
+    }*/
+
+    /**
+     * Update viewed, liked of video
+     * @param req
+     * @param res
+     */
+    self.getUpdateInfo = function(req, res) {
+        var limit = req.query.limit || 10,
+            params = {};
+        params.limit = limit;
+
+        // Load all video
+        youTubeModel.youTubeModel.getList(params, function(result, err) {
+            var link = 'https://gdata.youtube.com/feeds/api/videos/',
+                sql = '';
+            for(var o in result) {
+                youTubeHtmlParse.ParseDetailApi( link + result[o].video + '?v=2&alt=jsonc', function(data, refer) {
+                    sql = 'UPDATE `news` SET `viewed`=' + data.viewed + ',`likeCount`=' + data.likeCount
+                        + ', `crawled_time`="' + require('./../../utils/Utils').getDateDbString() + '"'
+                        + ' WHERE `video`="' + refer.video + '"';
+                    youTubeModel.youTubeModel.executeQuery(sql, function(data, err){
+                        // After execute query, check here
+                        if(err) console.log(err);
+                    })
+                }, {}, result[o]);
+            }
+            res.json(result);
+        })
     }
 
     // API
@@ -124,6 +153,42 @@ function YouTube() {
             kw = req.query.kw || '';
         youTubeModel.youTubeModel.getList(
             {'limit': limit, 'kw': kw }
+            , function (data, err) {
+                if (err) {
+                    res.json(err);
+                } else {
+                    var d = [];
+                    for(var o in data) {
+                        data[o].img = (data[o].img);
+                        data[o].title = unescape(data[o].title);
+                        data[o].brief = unescape(data[o].brief);
+
+                        var dateString = data[o].created_time
+                        try {
+                            var dateParts = dateString.split(' '),
+                                timeParts = dateParts[1].split(':'),
+                                date;
+                            dateParts = dateParts[0].split('-');
+                            date = new Date(Date.UTC(dateParts[0], parseInt(dateParts[1], 10) - 1, dateParts[2], timeParts[0], timeParts[1], timeParts[2]));
+                            dateString = date.getTime()/1000;
+
+                        } catch(e) {
+
+                        }
+                        data[o].created_time = dateString;
+
+                        d[o] = data[o];
+                    }
+                    res.json(d);
+                }
+            });
+    }
+
+    self.getTopList = function(req, res) {
+        var limit = req.query.limit || '0, 10',
+            kw = req.query.kw || '';
+        youTubeModel.youTubeModel.getList(
+            {'limit': limit, 'kw': kw, 'order' : '`likeCount` DESC' }
             , function (data, err) {
                 if (err) {
                     res.json(err);
@@ -214,34 +279,6 @@ function YouTube() {
         });
     }
 
-    /**
-     * Update viewed, liked of video
-     * @param req
-     * @param res
-     */
-    self.getUpdateInfo = function(req, res) {
-        var limit = req.query.limit || 10,
-            params = {};
-        params.limit = limit;
-
-        // Load all video
-        youTubeModel.youTubeModel.getList(params, function(result, err) {
-            var link = 'https://gdata.youtube.com/feeds/api/videos/',
-                sql = '';
-            for(var o in result) {
-                youTubeHtmlParse.ParseDetailApi( link + result[o].video + '?v=2&alt=jsonc', function(data, refer) {
-                    sql = 'UPDATE `news` SET `viewed`=' + data.viewed + ',`likeCount`=' + data.likeCount
-                        + ', `crawled_time`="' + require('./../../utils/Utils').getDateDbString() + '"'
-                        + ' WHERE `video`="' + refer.video + '"';
-                    youTubeModel.youTubeModel.executeQuery(sql, function(data, err){
-                        // After execute query, check here
-                        if(err) console.log(err);
-                    })
-                }, {}, result[o]);
-            }
-            res.json(result);
-        })
-    }
 }
 
 exports.YouTube = new YouTube();

@@ -39,7 +39,7 @@ function youTubeModel() {
         }
         sql += condition + " AND `link_origin` LIKE '%youtube.com%' AND `created_time` != 'undefined'";
 
-        var order = ' ORDER BY `crawled_time` DESC, `id` ASC';
+        var order = ' ORDER BY ' + (typeof params['order'] != 'undefined' ? params['order'] : '`crawled_time` DESC, `id` ASC');
         sql += order;
 
         var limit = '0, 10';
