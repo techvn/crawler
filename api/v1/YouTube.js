@@ -185,7 +185,7 @@ function YouTube() {
     }
 
     self.getTopList = function(req, res) {
-        var limit = req.query.limit || '0, 10',
+        var limit = req.query.limit || '100',
             kw = req.query.kw || '';
         youTubeModel.youTubeModel.getList(
             {'limit': limit, 'kw': kw, 'order' : '`likeCount` DESC' }
@@ -213,9 +213,11 @@ function YouTube() {
                         }
                         data[o].created_time = dateString;
 
-                        d[o] = data[o];
+                        d.push(data[o]);
                     }
-                    res.json(d);
+                    res.json(d.sort(function() {
+                        return .5 - Math.random();
+                    }));
                 }
             });
     }
