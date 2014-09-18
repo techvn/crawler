@@ -6,7 +6,7 @@ var matchObject = require('./../model/TF_Matches'),
     cheerio = require('cheerio');
 function TennisNewsHtmlParse() {
     var self = this;
-    self.getTennisNews = function(url, callback) {
+    self.getTennisNews = function(url, callback, keys) {
         var crawler = utils.getCrawler(null);
         crawler.queue([
             {
@@ -23,6 +23,13 @@ function TennisNewsHtmlParse() {
                         obj.brief = $(this).find('p').text().replace(/'/g, "\\'");
                         obj.link = 'http://www.tennis.com' + $(this).find('.thumbnail').attr('href');
                         obj.created_time = require('./../utils/Utils').getDateDbString();
+                        if(keys != null) {
+                            for(var o in keys) {
+                                if(keys[o] == 'authors') {
+                                    obj.authors = $(this).find('a.byline').text();
+                                }
+                            }
+                        }
                         // Get detail
                         console.log(obj.link);
                         self.getNewsDetail(obj.link, function(result, err) {

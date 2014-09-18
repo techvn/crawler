@@ -5,11 +5,12 @@ var utils = require('./../../utils/Utils').Utils,
     matches = require('./../../model/TF_Matches'),
     players = require('./../../model/TF_Player'),
     news = require('./../../model/TF_News'),
+    newsTagMatch = require('./../../model/TagMatch_News'),
     video = require('./../../model/TF_Video'),
     histories_statistic = require('./../../model/TF_Histories'),
     wiki = require('./../../utils/WikiPediaHtmlParse').WikiPediaHtmlParse,
     tennis_news = require('./../../utils/TennisNewsHtmlParse').TennisNewsHtmlParse,
-    tennis_video = require('./../../utils/YoutubeHtmlParse').YouTubeHtmlParse,
+    tennis_video = require('./../../utils/YouTubeHtmlParse').YouTubeHtmlParse,
     histories_detail = require('./../../model/TF_HistoriesDetail'),
     tennisStat = require('./../../utils/TennisMatchStat').TennisMatchStat;
 
@@ -336,7 +337,6 @@ function Crawler() {
         //news.NewsModel.getNews()
     }
 
-
     self.getVideo = function(req, res) {
         var url = 'https://www.youtube.com/results?search_sort=video_date_uploaded&search_query=tennis+highlight';
         tennis_video.getTFVideo(url, function(data, err) {
@@ -354,6 +354,32 @@ function Crawler() {
             })
             //res.json(result);
         });
+    }
+
+    // ------------------
+    self.getNewsForTag = function(req, res) {
+        var url = 'http://www.tennis.com/more-subchannel-articles/breaking-news/0/200/';
+        tennis_news.getTennisNews(url, function(data, err) {
+            var result = [];
+            // Revert data key
+            if(data.length > 0) {
+                for(var i = data.length - 1; i >= 0; i--) {
+                    var obj = {};
+
+                    obj['title'] = data[i].title;
+                    obj['source'] = data[i].link;
+                    obj['postedData'] = require('./../../utils/Utils').getDateDbString(new Date(Date.parse(data[i].posted_time)));
+                    obj['authors'] = data[i].authors;
+                    obj['content'] = data[i].content;
+
+                    result.push(obj);
+                }
+            }
+            newsTagMatch.NewsModel.insertMulti(result, function(result, err) {
+                console.log(err || result);
+            })
+            res.json(result);
+        }, ['authors']);
     }
 }
 
