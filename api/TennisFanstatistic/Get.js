@@ -8,7 +8,8 @@ var utils = require('./../../utils/Utils').Utils,
     historyModel = require('./../../model/TF_Histories'),
     news = require('./../../model/TF_News'),
     video = require('./../../model/TF_Video'),
-    historyDetailModel = require('./../../model/TF_HistoriesDetail');
+    historyDetailModel = require('./../../model/TF_HistoriesDetail'),
+    crawler = require('Crawler');
 function Get() {
     var self = this;
 
@@ -220,8 +221,29 @@ function Get() {
      */
     self.getHeadToHead = function (req, res) {
         // Get match detail by match id
-        var match_id = req.query.id || 0;
-        matchModel.MatchModel.getList('`id`,`year`,`tournament`,`player_1`,`player_2`', '`id`=' + match_id, 'id ASC', '1', function (list_matches, err) {
+        var match_id = req.query.id || 0,
+            player_1 = req.query.player_1 || '',
+            player_2 = req.query.player_2 || '',
+            pid_1 = req.query.pid_1 || 0,
+            pid_2 = req.query.pid_2 || 0,
+            con = '';
+        if(match_id) {
+            con = '`id`=' + match_id;
+        } else {
+            if(pid_1 == '' | pid_1 == 0) {
+                // Search and save player_1
+                // and return pid_1 for this player
+
+            }
+            if(pid_2 == '' | pid_2 == 0) {
+                // Search and save player_2
+                // and return pid_2 for this player
+
+            }
+            con = '(`player_1`="' + pid_1 + '" AND `player_1`="' + pid_2 + '")';
+        }
+
+        matchModel.MatchModel.getList('`id`,`year`,`tournament`,`player_1`,`player_2`', con, 'id ASC', '1', function (list_matches, err) {
             // Load list players
             if (err) {
                 res.json(err);
@@ -323,6 +345,10 @@ function Get() {
         res.json(result);
     }
 
+    self.getPlayer = function(req, res) {
+
+    }
+
     // News --------------
     self.getListNews = function (req, res) {
 
@@ -378,7 +404,6 @@ function Get() {
         };
         res.json(result);*/
     }
-
 
     // Video -------------
     self.getListVideo = function (req, res) {

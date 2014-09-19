@@ -23,7 +23,8 @@ function Post() {
                 }
                 res.json({
                     result: true,
-                    message: 'Vote success'
+                    message: 'Vote success',
+                    data : data
                 })
             });
             /*vote.result = true;
