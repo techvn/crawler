@@ -257,7 +257,9 @@ function Get() {
                     pid_1 = list_matches[o].player_1;
                     pid_2 = list_matches[o].player_2;
                     total_voted_1 = list_matches[o].total_voted_player_1;
+                    delete list_matches[o].total_voted_player_1;
                     total_voted_2 = list_matches[o].total_voted_player_2;
+                    delete list_matches[o].total_voted_player_2;
 
                     comma = ',';
                 }
