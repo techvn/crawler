@@ -15,9 +15,7 @@ var MatchObject = module.exports.MatchObject = function (s) {
     var s = s || {};
 
     this.table = s.table || 'matches';
-    if (s.field == null || s.field == 'undefined') {
-        s.field = {};
-    }
+    s.field = s.field || {};
 
     var f = {};
     f.id = s.field.id || 0;
@@ -64,7 +62,7 @@ var MatchModel = function () {
      */
     self.getDetail = function (field, con, callback, refer) {
         var conn = utils.getMySql(config);
-        var sql = "SELECT " + (fields ? fields : '*') + " FROM `" + MatchObject().table
+        var sql = "SELECT " + (field ? field : '*') + " FROM `" + MatchObject().table
             + "` WHERE " + (con ? con : '1=1');
         conn.query(sql, function (err, rows, fields) {
             if (err) {
@@ -91,6 +89,15 @@ var MatchModel = function () {
         });
         // End connection
         utils.endMySql(connection);
+    }
+
+    self.executeQuery = function(sql, callback, refer) {
+        var conn = utils.getMySql(config);
+        conn.query(sql, function(err, rows, fields) {
+            if(err) { err['sql'] = sql; }
+            callback(rows, err, refer);
+        });
+        utils.endMySql(conn);
     }
 }
 exports.MatchModel = new MatchModel();

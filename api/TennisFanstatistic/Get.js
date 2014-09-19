@@ -227,15 +227,15 @@ function Get() {
             pid_1 = req.query.pid_1 || 0,
             pid_2 = req.query.pid_2 || 0,
             con = '';
-        if(match_id) {
+        if (match_id) {
             con = '`id`=' + match_id;
         } else {
-            if(pid_1 == '' | pid_1 == 0) {
+            if (pid_1 == '' | pid_1 == 0) {
                 // Search and save player_1
                 // and return pid_1 for this player
 
             }
-            if(pid_2 == '' | pid_2 == 0) {
+            if (pid_2 == '' | pid_2 == 0) {
                 // Search and save player_2
                 // and return pid_2 for this player
 
@@ -243,7 +243,7 @@ function Get() {
             con = '(`player_1`="' + pid_1 + '" AND `player_1`="' + pid_2 + '")';
         }
 
-        matchModel.MatchModel.getList('`id`,`year`,`tournament`,`player_1`,`player_2`', con, 'id ASC', '1', function (list_matches, err) {
+        matchModel.MatchModel.getList('*', con, 'id ASC', '1', function (list_matches, err) {
             // Load list players
             if (err) {
                 res.json(err);
@@ -251,9 +251,14 @@ function Get() {
             }
             if (list_matches.length > 0) {
                 // player id
-                var player_id = '', comma = '';
+                var player_id = '', comma = '', total_voted_1 = 0, total_voted_2 = 0;
                 for (var o in list_matches) {
                     player_id += comma + list_matches[o].player_1 + ',' + list_matches[o].player_2;
+                    pid_1 = list_matches[o].player_1;
+                    pid_2 = list_matches[o].player_2;
+                    total_voted_1 = list_matches[o].total_voted_player_1;
+                    total_voted_2 = list_matches[o].total_voted_player_2;
+
                     comma = ',';
                 }
                 var players = [];
@@ -264,9 +269,12 @@ function Get() {
                     }
                     if (list_user.length > 0) {
                         for (var o in list_user) {
+                            var voted = 0;
+                            if(list_user[o].id == pid_1) {
+                                voted = total_voted_1;
+                            } else voted = total_voted_2;
                             // Load vote num here
-                            list_user[o].vote = 0;
-
+                            list_user[o].vote = voted;
                             players[list_user[o].id] = list_user[o];
                         }
                         for (var o in list_matches) {
@@ -278,8 +286,6 @@ function Get() {
                             var sql = 'SELECT b.`id`, b.`year`, b.`tournament`, b.`surface`, b.`round`, b.`score`, b.`winner`, a.`player_1`, a.`player_2` FROM `histories_statistic` AS a INNER JOIN `histories_detail` AS b ON a.`id`=b.`head2head_id` WHERE ' +
                                 '(a.`player_1`=' + list_matches[o].player_1.id + ' AND a.`player_2`=' + list_matches[o].player_2.id + ')'
                                 + ' OR (a.`player_2`=' + list_matches[o].player_1.id + ' AND a.`player_1`=' + list_matches[o].player_2.id + ') ORDER BY b.`id` ASC';
-
-                            //res.send(sql); return;
 
                             historyModel.HistoriesModel.executeQuery(sql, function (data, err, refer) {
                                 if (err) {
@@ -345,7 +351,7 @@ function Get() {
         res.json(result);
     }
 
-    self.getPlayer = function(req, res) {
+    self.getPlayer = function (req, res) {
 
     }
 
@@ -355,38 +361,38 @@ function Get() {
         var limit = req.query.limit || '0,10',
             kw = req.query.kw || '',
             conn = '1=1';
-        if(kw) {
+        if (kw) {
             conn = '`title` LIKE "%' + kw + '%" OR `brief` LIKE "%' + kw + '%"';
         }
 
-        news.NewsModel.getList('`id`,`title`,`thumb`,`brief`,`link`', conn, '`id` DESC' , limit, function(result, err) {
+        news.NewsModel.getList('`id`,`title`,`thumb`,`brief`,`link`', conn, '`id` DESC', limit, function (result, err) {
             res.json(err || result);
         })
 
         /*var result = [
-            {
-                id: 1,
-                title: 'Title of news',
-                brief: 'Brief for news',
-                link: 'Link detail of news if don\'t have crawled content',
-                'thumb': 'Link to thumb image'
-            },
-            {
-                id: 2,
-                title: 'Title of news',
-                brief: 'Brief for news',
-                link: 'Link detail of news if don\'t have crawled content',
-                'thumb': 'Link to thumb image'
-            }
-        ];
-        res.json(result);*/
+         {
+         id: 1,
+         title: 'Title of news',
+         brief: 'Brief for news',
+         link: 'Link detail of news if don\'t have crawled content',
+         'thumb': 'Link to thumb image'
+         },
+         {
+         id: 2,
+         title: 'Title of news',
+         brief: 'Brief for news',
+         link: 'Link detail of news if don\'t have crawled content',
+         'thumb': 'Link to thumb image'
+         }
+         ];
+         res.json(result);*/
     }
 
     self.getNewsDetail = function (req, res) {
         var news_id = req.query.id || 0;
-        news.NewsModel.getDetail('*', '`id`=' + news_id, function(result, err) {
-            if(!err) {
-                for(var o in result) {
+        news.NewsModel.getDetail('*', '`id`=' + news_id, function (result, err) {
+            if (!err) {
+                for (var o in result) {
                     result[o].created_time = result[o].created_time.toString();
                     result = result[o];
                     break;
@@ -395,14 +401,14 @@ function Get() {
             res.json(err || result);
         })
         /*var result = {
-            id: 1,
-            title: 'Title of news',
-            brief: 'Brief for news',
-            link: 'Link detail of news if don\'t have crawled content',
-            'thumb': 'Link to thumb image',
-            content: 'Full description text hear'
-        };
-        res.json(result);*/
+         id: 1,
+         title: 'Title of news',
+         brief: 'Brief for news',
+         link: 'Link detail of news if don\'t have crawled content',
+         'thumb': 'Link to thumb image',
+         content: 'Full description text hear'
+         };
+         res.json(result);*/
     }
 
     // Video -------------
@@ -410,34 +416,34 @@ function Get() {
         var limit = req.query.limit || '0,10',
             kw = req.query.kw || '',
             conn = '1=1';
-        if(kw) {
+        if (kw) {
             conn = '`title` LIKE "%' + kw + '%" OR `brief` LIKE "%' + kw + '%"';
         }
 
-        video.VideoModel.getList('`id`,`title`,`thumb`,`brief`,`link`,`video`, `posted_time`', conn, '`id` DESC' , limit, function(result, err) {
+        video.VideoModel.getList('`id`,`title`,`thumb`,`brief`,`link`,`video`, `posted_time`', conn, '`id` DESC', limit, function (result, err) {
             res.json(err || result);
         })
         /*var result = [
-            {
-                id: 1,
-                title: 'Title of video video',
-                brief: 'Brief for video',
-                thumb: 'Link to thumb image'
-            },
-            {
-                id: 2,
-                title: 'Title of video video',
-                brief: 'Brief for video',
-                thumb: 'Link to thumb image'
-            }
-        ];
-        res.json(result);*/
+         {
+         id: 1,
+         title: 'Title of video video',
+         brief: 'Brief for video',
+         thumb: 'Link to thumb image'
+         },
+         {
+         id: 2,
+         title: 'Title of video video',
+         brief: 'Brief for video',
+         thumb: 'Link to thumb image'
+         }
+         ];
+         res.json(result);*/
     }
     self.getVideoDetail = function (req, res) {
         var news_id = req.query.id || 0;
-        video.VideoModel.getDetail('*', '`id`=' + news_id, function(result, err) {
-            if(!err) {
-                for(var o in result) {
+        video.VideoModel.getDetail('*', '`id`=' + news_id, function (result, err) {
+            if (!err) {
+                for (var o in result) {
                     result[o].created_time = result[o].created_time.toString();
                     result = result[o];
                     break;
@@ -446,15 +452,15 @@ function Get() {
             res.json(err || result);
         })
         /*var result = {
-            id: 1,
-            title: 'Title of video',
-            brief: 'Brief for video',
-            link: 'Link detail of news if don\'t have crawled content',
-            thumb: 'Link to thumb image',
-            content: 'Full description text hear',
-            video: 'iframe embed or id of youtube link'
-        };
-        res.json(result);*/
+         id: 1,
+         title: 'Title of video',
+         brief: 'Brief for video',
+         link: 'Link detail of news if don\'t have crawled content',
+         thumb: 'Link to thumb image',
+         content: 'Full description text hear',
+         video: 'iframe embed or id of youtube link'
+         };
+         res.json(result);*/
     }
 
 
