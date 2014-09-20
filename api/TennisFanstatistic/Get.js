@@ -8,8 +8,8 @@ var utils = require('./../../utils/Utils').Utils,
     historyModel = require('./../../model/TF_Histories'),
     news = require('./../../model/TF_News'),
     video = require('./../../model/TF_Video'),
-    historyDetailModel = require('./../../model/TF_HistoriesDetail'),
-    crawler = require('Crawler');
+    //crawler = require('Crawler'),
+    historyDetailModel = require('./../../model/TF_HistoriesDetail');
 function Get() {
     var self = this;
 
