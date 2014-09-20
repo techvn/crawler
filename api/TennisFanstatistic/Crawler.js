@@ -282,7 +282,7 @@ function Crawler() {
 
     self.getAllPlayerInfoOnWiki = function(req, res) {
         // Load list player
-        players.PlayerModel.getList('`id`,`name`', '`avatar` IS NULL OR `avatar` = ""', null, 'all', function(data,err) {
+        players.PlayerModel.getList('`id`,`name`', null, null, 'all', function(data,err) {
             for(var o in data) {
                 req.query.name = data[o].name;
                 req.query.player_id = data[o].id;
