@@ -13,6 +13,43 @@ var utils = require('./../../utils/Utils').Utils,
 function Get() {
     var self = this;
 
+    // Load players
+    self.getPlayer = function (req, res) {
+        var con = '', oparator = '',
+            kw = req.query.kw || '',
+            order = req.query.order || 'id',
+            order_type = req.query.order_type || 'desc',
+            limit = req.query.limit || '0, 10',
+            type = req.query.type || '',
+            action = req.query.action || 'search',
+            field = '';
+
+        if(type.toUpperCase() == 'ATP') {
+            type = 1;
+        } else if(type.toUpperCase() == 'WTA') {
+            type = 0;
+        } else { type = null; }
+
+        if(type != null) {
+            con += oparator + '`gender`=' + type;
+            oparator = ' AND ';
+        }
+        if(kw != '') {
+            con += oparator + '`name` LIKE "%' + kw + '%"';
+        }
+
+        // If search action, send full player data
+        if(action == 'search') {
+            field = '`id`,`name`,`avatar`,`birth`,`des`,`country`';
+        } else { // Send id, name for suggest
+            field = '`id`,`name`';
+        }
+
+        playerModel.PlayerModel.getList(field, con, '`' + order + '` ' + order_type, limit, function(result, err) {
+            res.json(err || result);
+        });
+    }
+
     // Get player detail
     // Params: id
     self.getPlayerDetail = function (req, res) {
@@ -353,9 +390,6 @@ function Get() {
         res.json(result);
     }
 
-    self.getPlayer = function (req, res) {
-
-    }
 
     // News --------------
     self.getListNews = function (req, res) {
@@ -464,7 +498,6 @@ function Get() {
          };
          res.json(result);*/
     }
-
 
     // Check user voted or not by user_id, match_id and player
     self.getCheckUserVote = function (req, res) {

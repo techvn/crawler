@@ -73,6 +73,8 @@ function TennisMatchStat() {
                     $ = cheerio.load(result.body);
                     data.tennis_stat_id_map = $('#idPlayer').val();
                     data.birth = $('div.birthDate').text();
+                    // Find gender ATP = 1 (male), WTA = 0 (female)
+                    data.gender = ($('#matches tr td').text().indexOf('ATP') > -1 ? 1:0);
                     callback(data, null, refer);
                 } catch(e) {
                     callback(data, e, refer);

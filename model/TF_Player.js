@@ -18,6 +18,7 @@ var PlayerObject = module.exports.PlayerObject = function (s) {
 
     f.id = s.field.id || 0;
     f.name = s.field.name || '';
+    f.gender = s.field.gender || 0; // Female
     f.birth = s.field.birth || '';
     f.country = s.field.country || '';
     f.avatar = s.field.avatar || '';

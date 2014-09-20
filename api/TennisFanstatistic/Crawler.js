@@ -80,7 +80,7 @@ function Crawler() {
         var temp = 'http://tennis.matchstat.com/Player/',
             url = '';
         // Load all player not map
-        players.PlayerModel.getList('`id`, `name`', '`tennis_stat_id_map` IS NULL OR `tennis_stat_id_map` = 0', null, 9999, function (data, err) {
+        players.PlayerModel.getList('`id`, `name`', null, null, 9999, function (data, err) {
             if (!err) {
                 for (var o in data) {
                     url = temp + escape(data[o].name);
@@ -91,7 +91,10 @@ function Crawler() {
                         }
                         // Update player info
                         var sql = 'UPDATE `' + players.PlayerObject().table + '` SET `tennis_stat_id_map`=' + result.tennis_stat_id_map
-                            + ', `birth`="' + result.birth + '" WHERE `id`=' + refer;
+                            + ', `birth`="' + result.birth + '",`gender`=' + result.gender + ' WHERE `id`=' + refer;
+                        /*result.sql = sql;
+                        res.json(result);*/
+
                         players.PlayerModel.executeQuery(sql, function (data, err) {
                         });
                     }, data[o].id);
@@ -255,7 +258,7 @@ function Crawler() {
                         break;
                     }
                     var sql = 'UPDATE `' + players.PlayerObject().table + '` SET `tennis_stat_id_map`=' + result.tennis_stat_id_map
-                        + ', `birth`="' + result.birth + '" WHERE `id`=' + player_id;
+                        + ', `birth`="' + result.birth + ',`gender`=' + result.gender + '" WHERE `id`=' + player_id;
                     players.PlayerModel.executeQuery(sql, function (data, err) {
                         if(!err) {
                             console.log('Update player success');
