@@ -11,9 +11,10 @@ var utils = require('./../../utils/Utils').Utils,
     wiki = require('./../../utils/WikiPediaHtmlParse').WikiPediaHtmlParse,
     tennis_news = require('./../../utils/TennisNewsHtmlParse').TennisNewsHtmlParse,
     tennis_video = require('./../../utils/YouTubeHtmlParse').YouTubeHtmlParse,
+    atpWorld = require('./../../utils/AtpWorldTourHtmlParse').AtpWorldTourHtmlParse,
+    wtaWorld = require('./../../utils/WtaTennisHtmlParse').WtaTennisHtmlParse,
     histories_detail = require('./../../model/TF_HistoriesDetail'),
     tennisStat = require('./../../utils/TennisMatchStat').TennisMatchStat;
-
 function Crawler() {
     var self = this;
     /**
@@ -93,7 +94,7 @@ function Crawler() {
                         var sql = 'UPDATE `' + players.PlayerObject().table + '` SET `tennis_stat_id_map`=' + result.tennis_stat_id_map
                             + ', `birth`="' + result.birth + '",`gender`=' + result.gender + ' WHERE `id`=' + refer;
                         /*result.sql = sql;
-                        res.json(result);*/
+                         res.json(result);*/
 
                         players.PlayerModel.executeQuery(sql, function (data, err) {
                         });
@@ -117,36 +118,42 @@ function Crawler() {
         var name_1 = req.query.name_1 || '';
         var name_2 = req.query.name_2 || '';
 
-        if(name_1 == '') {
+        if (name_1 == '') {
             res.json({
-                'msg' : 'Thieu tham so name_1'
-            }); return;
+                'msg': 'Thieu tham so name_1'
+            });
+            return;
         }
 
-        if(name_2 == '') {
+        if (name_2 == '') {
             res.json({
-                'msg' : 'Thieu tham so name_2'
-            }); return;
+                'msg': 'Thieu tham so name_2'
+            });
+            return;
         }
-        if(player_1  == 0) {
+        if (player_1 == 0) {
             res.json({
-                'msg' : 'Thieu tham so player_1'
-            }); return;
+                'msg': 'Thieu tham so player_1'
+            });
+            return;
         }
-        if(player_2  == 0) {
+        if (player_2 == 0) {
             res.json({
-                'msg' : 'Thieu tham so player_2'
-            }); return;
+                'msg': 'Thieu tham so player_2'
+            });
+            return;
         }
-        if(map_player_1_id == 0) {
+        if (map_player_1_id == 0) {
             res.json({
-                'msg' : 'Thieu tham so map_1'
-            }); return;
+                'msg': 'Thieu tham so map_1'
+            });
+            return;
         }
-        if(map_player_2_id == 0) {
+        if (map_player_2_id == 0) {
             res.json({
-                'msg' : 'Thieu tham so map_2'
-            }); return;
+                'msg': 'Thieu tham so map_2'
+            });
+            return;
         }
         // ---------------
 
@@ -156,7 +163,7 @@ function Crawler() {
 
         tennisStat.LoadHeadToHead(url, function (head2head_data, err) {
             /*res.send(head2head_data);
-            return;*/
+             return;*/
             // Check has been history statistic
             histories_statistic.HistoriesModel.getDetail('`id`', '`player_1`=' + player_1 + ' AND player_2=' + player_2, function (data_detail, err) {
                 if (err) {
@@ -173,7 +180,7 @@ function Crawler() {
                     // Add headToHead id for this data
                     for (var o in head2head_data) {
                         var param1 = player_1, param2 = player_2;
-                        if(head2head_data[o].player_1 == name_1) {
+                        if (head2head_data[o].player_1 == name_1) {
                             param1 = player_1;
                             param2 = player_2;
                         } else {
@@ -190,7 +197,7 @@ function Crawler() {
                     // Add histories detail for this match
                     histories_detail.HistoryDetailModel.insertMulti(head2head_data, function (data, err) {
                         // Done
-                        if(err) {
+                        if (err) {
                             console.log(err);
                             res.send(head2head_data);
                         } else
@@ -224,7 +231,7 @@ function Crawler() {
                         // Add histories detail for this match
                         histories_detail.HistoryDetailModel.insertMulti(head2head_data, function (data, err) {
                             // Done
-                            if(err) {
+                            if (err) {
                                 console.log(err);
                             }
                         })
@@ -260,7 +267,7 @@ function Crawler() {
                     var sql = 'UPDATE `' + players.PlayerObject().table + '` SET `tennis_stat_id_map`=' + result.tennis_stat_id_map
                         + ', `birth`="' + result.birth + ',`gender`=' + result.gender + '" WHERE `id`=' + player_id;
                     players.PlayerModel.executeQuery(sql, function (data, err) {
-                        if(!err) {
+                        if (!err) {
                             console.log('Update player success');
                         }
                     });
@@ -269,7 +276,7 @@ function Crawler() {
                     var sql = "INSERT IGNORE INTO `" + players.PlayerObject().table + "`(`name`,`tennis_stat_id_map`, `birth`)"
                         + " VALUE('" + player_name + "','" + result.tennis_stat_id_map + "','" + result.birth + "')";
                     players.PlayerModel.executeQuery(sql, function (data, err) {
-                        if(!err) {
+                        if (!err) {
                             console.log('Add new player success');
                         }
                     });
@@ -280,10 +287,13 @@ function Crawler() {
         }, null);
     }
 
-    self.getAllPlayerInfoOnWiki = function(req, res) {
+    // ---------------- Update player in Wiki
+    self.getAllPlayerInfoOnWiki = function (req, res) {
+        var con = '`refer` IS NULL OR `refer` = ""'; // No link to refer
+
         // Load list player
-        players.PlayerModel.getList('`id`,`name`', null, null, 'all', function(data,err) {
-            for(var o in data) {
+        players.PlayerModel.getList('`id`,`name`', con, null, 'all', function (data, err) {
+            for (var o in data) {
                 req.query.name = data[o].name;
                 req.query.player_id = data[o].id;
                 req.query.renderJson = false;
@@ -295,22 +305,22 @@ function Crawler() {
         })
     }
 
-    self.getPlayerInfoOnWiki = function(req, res) {
+    self.getPlayerInfoOnWiki = function (req, res) {
         var url = 'http://en.wikipedia.org/wiki/',
             player = req.query.name,
             player_id = req.query.player_id,
-            renderJson = req.query.renderJson;
-        wiki.getPlayerInfo(url + player.replace(/\s/i, '_'), function(data, err) {
+            renderJson = req.query.renderJson || true;
+        wiki.getPlayerInfo(url + player.replace(/\s/i, '_'), function (data, err) {
             // Update data
             var sql = "UPDATE `" + players.PlayerObject().table
                 + "` SET `avatar`='" + data.avatar + "', `country`='" + data.country + "', `des`='" + data.des.replace(/['ˈ]/g, "\\'") + "' WHERE `id`=" + player_id;
             //res.send(sql); return;
-            players.PlayerModel.executeQuery(sql, function(data, err) {
-                if(err) {
+            players.PlayerModel.executeQuery(sql, function (data, err) {
+                if (err) {
                     console.log(err);
                 }
                 console.log(renderJson + ': option');
-                if(!renderJson) {
+                if (!renderJson) {
                     return;
                 }
                 res.json(data);
@@ -322,17 +332,17 @@ function Crawler() {
 
     // ------------------------------
 
-    self.getNews = function(req, res) {
+    self.getNews = function (req, res) {
         var url = 'http://www.tennis.com/more-subchannel-articles/breaking-news/0/100/';
-        tennis_news.getTennisNews(url, function(data, err) {
+        tennis_news.getTennisNews(url, function (data, err) {
             var result = [];
             // Revert data key
-            if(data.length > 0) {
-                for(var i = data.length - 1; i >= 0; i--) {
+            if (data.length > 0) {
+                for (var i = data.length - 1; i >= 0; i--) {
                     result.push(data[i]);
                 }
             }
-            news.NewsModel.insertMulti(result, function(result, err) {
+            news.NewsModel.insertMulti(result, function (result, err) {
                 console.log(err || result);
             })
             res.json(data);
@@ -340,19 +350,19 @@ function Crawler() {
         //news.NewsModel.getNews()
     }
 
-    self.getVideo = function(req, res) {
+    self.getVideo = function (req, res) {
         var url = 'https://www.youtube.com/results?search_sort=video_date_uploaded&search_query=tennis+highlight';
-        tennis_video.getTFVideo(url, function(data, err) {
+        tennis_video.getTFVideo(url, function (data, err) {
             var result = [];
             // Revert data key
             console.log('Length data: ' + data.length);
-            if(data.length > 0) {
-                for(var i = data.length - 1; i >= 0; i--) {
-                    if(typeof data[i].video != 'undefined')
+            if (data.length > 0) {
+                for (var i = data.length - 1; i >= 0; i--) {
+                    if (typeof data[i].video != 'undefined')
                         result.push(data[i]);
                 }
             }
-            video.VideoModel.insertMulti(result, function(result, err) {
+            video.VideoModel.insertMulti(result, function (result, err) {
                 res.json(err || result);
             })
             //res.json(result);
@@ -360,13 +370,13 @@ function Crawler() {
     }
 
     // ------------------
-    self.getNewsForTag = function(req, res) {
+    self.getNewsForTag = function (req, res) {
         var url = 'http://www.tennis.com/more-subchannel-articles/breaking-news/0/200/';
-        tennis_news.getTennisNews(url, function(data, err) {
+        tennis_news.getTennisNews(url, function (data, err) {
             var result = [];
             // Revert data key
-            if(data.length > 0) {
-                for(var i = data.length - 1; i >= 0; i--) {
+            if (data.length > 0) {
+                for (var i = data.length - 1; i >= 0; i--) {
                     var obj = {};
 
                     obj['title'] = data[i].title;
@@ -378,11 +388,264 @@ function Crawler() {
                     result.push(obj);
                 }
             }
-            newsTagMatch.NewsModel.insertMulti(result, function(result, err) {
+            newsTagMatch.NewsModel.insertMulti(result, function (result, err) {
                 console.log(err || result);
             })
             res.json(result);
         }, ['authors']);
+    }
+
+    // ------------------------------- LOAD RANKING
+    self.getRankOrAddNew = function (req, res) {
+        //WTA http://www.wtatennis.com/singles-rankings
+        //ATP http://www.atpworldtour.com/Rankings/Singles.aspx
+        var type = req.query.type || 'atp',
+            url = (type == 'atp' ? 'http://www.atpworldtour.com/Rankings/Singles.aspx' :
+                'http://www.wtatennis.com/singles-rankings');
+
+        /*var sql = "UPDATE `" + players.PlayerObject().table
+         + "` SET `refer`='', `country`='', `rank`='' WHERE `name`='Andy Murray'";
+         players.PlayerModel.executeQuery(sql, function (data, err) {
+         res.json(err || data)
+         });
+         return;*/
+
+        if (type == 'atp') {
+            // Crawl player info
+            /*var player = {
+             name:'',
+             refer:'http://www.atpworldtour.com/Tennis/Players/Top-Players/Pablo-Cuevas.aspx',
+             rank: 4175,
+             country: 'Czech Republic'
+             };
+             atpWorld.Profile(player.refer, function(result, err, player) {
+             if(err) {
+             console.log(err); return;
+             }
+             for(var i in result) {
+             player[i] = result[i];
+             }
+             res.json(player);
+             }, player);
+             return;*/
+
+            atpWorld.Rank(url, function (data, err, player_link) {
+
+                // Re-crawl with other pages
+                if (player_link) {
+                    var timer = 15000; // 15 seconds
+                    for (var i in player_link) {
+                        setTimeout(function (obj) {
+                            atpWorld.Rank(player_link[obj], function (data, err) {
+                                // Update or crawl new player
+                                if (!err) {
+                                    for (var o in data) {
+                                        var sql = "UPDATE `" + players.PlayerObject(null).table
+                                            + "` SET `refer`='" + data[o].refer + "', `country`='" + data[o].country
+                                            + "', `rank`='" + data[o].rank + "' WHERE `name`='" + data[o].name + "'";
+                                        players.PlayerModel.executeQuery(sql, function (data, err, player) {
+                                            if (err) {
+                                                console.log(err);
+                                                return;
+                                            }
+                                            // Check row exist or not
+                                            if (!data.affectedRows) { // Data not found
+                                                // Crawl new data for this player
+                                                atpWorld.Profile(player.refer, function (result, err, player) {
+                                                    if (err) {
+                                                        console.log(err);
+                                                        return;
+                                                    }
+                                                    for (var i in result) {
+                                                        player[i] = result[i];
+                                                    }
+                                                    players.PlayerModel.insertPlayer(player, function (data, err, refer) {
+                                                        if (err) {
+                                                            console.log(err);
+                                                        } else {
+                                                            console.log((new Date().toString()) + ' Insert: ' +  refer.name);
+                                                        }
+                                                    }, player);
+                                                }, player);
+                                            } else {
+                                                console.log((new Date().toString()) + ' Update: ' + player.name);
+                                            }
+
+                                        }, data[o]);
+                                    }
+                                }
+                            });
+                        }, timer * i, i);
+
+                    }
+                }
+
+                // Update data
+                if (!err) {
+                    for (var o in data) {
+                        var sql = "UPDATE `" + players.PlayerObject(null).table
+                            + "` SET `refer`='" + data[o].refer + "', `country`='" + data[o].country
+                            + "', `rank`='" + data[o].rank + "' WHERE `name`='" + data[o].name + "'";
+                        players.PlayerModel.executeQuery(sql, function (data, err, player) {
+                            if (err) {
+                                console.log(err);
+                                return;
+                            }
+                            // Check row exist or not
+                            if (!data.affectedRows) { // Data not found
+                                // Crawl new data for this player
+                                atpWorld.Profile(player.refer, function (result, err, player) {
+                                    if (err) {
+                                        console.log(err);
+                                        return;
+                                    }
+                                    for (var i in result) {
+                                        player[i] = result[i];
+                                    }
+                                    players.PlayerModel.insertPlayer(player, function (data, err, refer) {
+                                        if (err) {
+                                            console.log(err);
+                                        } else {
+                                            console.log((new Date().toString()) + ' Insert: ' +  refer.name);
+                                        }
+                                    }, player);
+                                }, player);
+                            } else {
+                                console.log((new Date().toString()) + ' Update: ' + player.name);
+                            }
+                        }, data[o]);
+                    }
+                }
+                res.json(data);
+            }, {});
+        } else { // WTA
+            wtaWorld.Rank(url, function (data, err, refer) {
+                //res.json(data);
+
+                // Check has link continue crawl
+                if (refer) {
+                    var timer = 15000; // 15 seconds
+                    for (var o in refer) {
+                        setTimeout(function (obj) {
+                            wtaWorld.Rank(refer[obj], function (data, err, refer) {
+                                if (!err) {
+                                    for (var o in data) {
+                                        var sql = "UPDATE `" + players.PlayerObject(null).table
+                                            + "` SET `refer`='" + data[o].refer + "', `country`='" + data[o].country
+                                            + "', `rank`='" + data[o].rank + "' WHERE `name`='" + data[o].name + "'";
+                                        players.PlayerModel.executeQuery(sql, function (data, err, player) {
+                                            if (err) {
+                                                console.log(err);
+                                                return;
+                                            }
+                                            // Check row exist or not
+                                            if (!data.affectedRows) { // Data not found
+                                                // Crawl new data for this player
+                                                wtaWorld.Profile(player.refer, function (result, err, player) {
+                                                    if (err) {
+                                                        console.log(err);
+                                                        return;
+                                                    }
+                                                    for (var i in result) {
+                                                        player[i] = result[i];
+                                                    }
+                                                    players.PlayerModel.insertPlayer(player, function (data, err, player) {
+                                                        if (err) {
+                                                            console.log(err);
+                                                        } else {
+                                                            console.log((new Date().toString()) + ' Insert: ' + player.name);
+                                                        }
+                                                    }, player);
+                                                }, player);
+                                            } else {
+                                                console.log((new Date().toString()) + ' Update: ' + player.name);
+                                            }
+                                        }, data[o]);
+                                    }
+                                }
+                            });
+                        }, timer * o, o);
+                    }
+                }
+
+                // Update data
+                if (!err) {
+                    for (var o in data) {
+                        var sql = "UPDATE `" + players.PlayerObject(null).table
+                            + "` SET `refer`='" + data[o].refer + "', `country`='" + data[o].country
+                            + "', `rank`='" + data[o].rank + "' WHERE `name`='" + data[o].name + "'";
+                        players.PlayerModel.executeQuery(sql, function (data, err, player) {
+                            if (err) {
+                                console.log(err);
+                                return;
+                            }
+                            // Check row exist or not
+                            if (!data.affectedRows) { // Data not found
+                                // Crawl new data for this player
+                                wtaWorld.Profile(player.refer, function (result, err, player) {
+                                    if (err) {
+                                        console.log(err);
+                                        return;
+                                    }
+                                    for (var i in result) {
+                                        player[i] = result[i];
+                                    }
+                                    players.PlayerModel.insertPlayer(player, function (data, err, player) {
+                                        if (err) {
+                                            console.log(err);
+                                        } else {
+                                            console.log((new Date().toString()) + ' Insert: ' + player.name);
+                                        }
+                                    }, player);
+                                }, player);
+                            } else {
+                                console.log('Update: ' + player.name);
+                            }
+                        }, data[o]);
+                    }
+                }
+                res.json(data);
+            }, {});
+        }
+    }
+
+    /**
+     * Update some data for profile on ATP
+     * @param req
+     * @param res
+     */
+    self.getUpdateAtpProfile = function (req, res) {
+        var type = req.query.type || 'atp';
+        if (type == 'atp') {
+            players.PlayerModel.getList('*', '`birth`="undefined" AND `refer` != "" AND `refer` IS NOT NULL', null, 'all', function (data, err) {
+                for (var o in data) {
+                    if (data[o].refer) {
+                        atpWorld.Profile(data[o].refer, function (result, err, player) {
+                            /*console.log('UPDATE `' + players.PlayerObject(null).table
+                             + '` SET `birth`="' + result.birth + '" WHERE `id`=' + player.id);*/
+                            players.PlayerModel.executeQuery('UPDATE `' + players.PlayerObject(null).table
+                                + '` SET `birth`="' + result.birth + '" WHERE `id`=' + player.id, function (data, err) {
+                                // Check update
+                                if (err) {
+                                    console.log(err);
+                                }
+                            })
+                        }, data[o]);
+                    }
+                }
+                res.json(err || data);
+            });
+        } else {
+            res.json({msg: 'Do something for WTA'});
+        }
+
+    }
+
+    self.Test = function(req, res) {
+        res.json({
+            name : 'binhnt',
+            birth : '30/09/1986'
+        });
     }
 }
 

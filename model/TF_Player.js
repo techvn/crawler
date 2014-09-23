@@ -24,6 +24,7 @@ var PlayerObject = module.exports.PlayerObject = function (s) {
     f.avatar = s.field.avatar || '';
     f.win = s.field.win || 0;
     f.lose = s.field.lose || 0;
+    f.rank = s.field.rank || 0;
     f.des = s.field.des || '';
     f.status = s.field.status || 0;
 
@@ -131,6 +132,19 @@ var PlayerModel = function() {
     }
 
     self.executeQuery = function(sql, callback, refer) {
+        /**
+         * Result update
+        {
+            "fieldCount": 0,
+            "affectedRows": 1, // 0 if not update
+            "insertId": 0,
+            "serverStatus": 2,
+            "warningCount": 1,
+            "message": "(Rows matched: 1  Changed: 1  Warnings: 1",
+            "protocol41": true,
+            "changedRows": 1 // 0 if not update or data not change
+        }*/
+
         var conn = utils.getMySql(config);
         conn.query(sql, function(err, rows, fields) {
             if(err) { err['sql'] = sql; }

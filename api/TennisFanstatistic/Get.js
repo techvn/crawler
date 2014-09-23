@@ -8,7 +8,7 @@ var utils = require('./../../utils/Utils').Utils,
     historyModel = require('./../../model/TF_Histories'),
     news = require('./../../model/TF_News'),
     video = require('./../../model/TF_Video'),
-    //crawler = require('Crawler'),
+//crawler = require('Crawler'),
     historyDetailModel = require('./../../model/TF_HistoriesDetail');
 function Get() {
     var self = this;
@@ -24,28 +24,30 @@ function Get() {
             action = req.query.action || 'search',
             field = '';
 
-        if(type.toUpperCase() == 'ATP') {
+        if (type.toUpperCase() == 'ATP') {
             type = 1;
-        } else if(type.toUpperCase() == 'WTA') {
+        } else if (type.toUpperCase() == 'WTA') {
             type = 0;
-        } else { type = null; }
+        } else {
+            type = null;
+        }
 
-        if(type != null) {
+        if (type != null) {
             con += oparator + '`gender`=' + type;
             oparator = ' AND ';
         }
-        if(kw != '') {
+        if (kw != '') {
             con += oparator + '`name` LIKE "%' + kw + '%"';
         }
 
         // If search action, send full player data
-        if(action == 'search') {
+        if (action == 'search') {
             field = '`id`,`name`,`avatar`,`birth`,`des`,`country`';
         } else { // Send id, name for suggest
             field = '`id`,`name`';
         }
 
-        playerModel.PlayerModel.getList(field, con, '`' + order + '` ' + order_type, limit, function(result, err) {
+        playerModel.PlayerModel.getList(field, con, '`' + order + '` ' + order_type, limit, function (result, err) {
             res.json(err || result);
         });
     }
@@ -167,9 +169,14 @@ function Get() {
 
         var limit = req.query.limit || '';
         // Load matches
-        var matches = [];
-        var players = [];
-        matchModel.MatchModel.getList('`id`,`year`,`tournament`,`player_1`,`player_2`', null, 'id ASC', limit, function (list_matches, err) {
+        var matches = [],
+            players = [],
+            week = utils.getWeek(null),
+            year = new Date().getFullYear(),
+            con = '';
+        con = '`year` = "' + week + '/' + year + '"';
+
+        matchModel.MatchModel.getList('`id`,`year`,`tournament`,`player_1`,`player_2`', con, '`id` ASC', limit, function (list_matches, err) {
             // Load list players
             if (err) {
                 res.json(err);
@@ -199,6 +206,11 @@ function Get() {
                     res.json(list_matches);
                 });
             } else {
+                // No match in database
+                // 1. Crawl news match list
+                // 2. Return current list if found
+
+
                 res.json(list_matches);
             }
         });
@@ -309,7 +321,7 @@ function Get() {
                     if (list_user.length > 0) {
                         for (var o in list_user) {
                             var voted = 0;
-                            if(list_user[o].id == pid_1) {
+                            if (list_user[o].id == pid_1) {
                                 voted = total_voted_1;
                             } else voted = total_voted_2;
                             // Load vote num here
