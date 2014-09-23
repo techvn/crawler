@@ -8,3 +8,4 @@ function Test() {
         crawler.Test(req, res);
     }
 }
+exports.Test = new Test();
