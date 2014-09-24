@@ -19,7 +19,7 @@ function TennisNewsHtmlParse() {
                         var obj = {};
                         obj.thumb = $(this).find('.thumbnail img').attr('src');
                         obj.title = $(this).find('h3').text().replace(/'/g, "\\'");
-                        obj.posted_time = $(this).find('.dateline').text();
+                        obj.posted_time = require('./../utils/Utils').getDateDbString(new Date($(this).find('.dateline').text()));
                         obj.brief = $(this).find('p').text().replace(/'/g, "\\'");
                         obj.link = 'http://www.tennis.com' + $(this).find('.thumbnail').attr('href');
                         obj.created_time = require('./../utils/Utils').getDateDbString();
