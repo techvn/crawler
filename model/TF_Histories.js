@@ -127,11 +127,11 @@ function HistoriesModel() {
         utils.endMySql(conn);
     }
 
-    self.executeQuery = function(sql, callback) {
+    self.executeQuery = function(sql, callback, refer) {
         var conn = utils.getMySql(config);
         conn.query(sql, function(err, rows, fields) {
             if(err) { err['sql'] = sql; }
-            callback(rows, err);
+            callback(rows, err, refer);
         });
         utils.endMySql(conn);
     }

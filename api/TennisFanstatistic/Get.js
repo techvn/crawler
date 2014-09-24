@@ -144,37 +144,6 @@ function Get() {
 
         });
         return;
-
-        var result = playerModel.PlayerObject({'field': {
-                'name': 'Roger Federer',
-                'avatar': '',
-                'birth': '8 August 1981',
-                'country': 'Switzerland',
-                'des': 'Federer has won the ATPWorldTour.com Fans\' Favourite Award a record eleven times straight (2003–2013) and the Stefan Edberg Sportsmanship Award (voted for by the players) a record nine times (2004–2009, 2011–2013)'
-            }
-            }
-        ).field;
-        result.matches = [
-            {
-                'time': '36/2014',
-                'player_with': 'Rafael Nadal',
-                'surface': 'hard',
-                'tournament': 'US Open',
-                'round': '342',
-                'score': '4-6 7-6(4) 3-6',
-                'win': false
-            },
-            {
-                'time': '32/2010',
-                'player_with': 'Steffi Graf',
-                'surface': 'hard',
-                'tournament': 'Australia Open',
-                'round': '342',
-                'score': '6-2 7-6(3)',
-                'win': true
-            }
-        ]
-        res.json(result);
     }
 
     /**
@@ -231,53 +200,7 @@ function Get() {
                 res.json(list_matches);
             }
         });
-        return;
 
-        var result = [
-            {
-                'id': 1,
-                'player_1': {
-                    id: 1,
-                    name: 'Federer',
-                    avatar: 'Link avatar',
-                    win: 15,
-                    vote: 20
-                },
-                'player_2': {
-                    id: 2,
-                    name: 'Rafael Nadal',
-                    avatar: 'Link avatar',
-                    win: 15,
-                    vote: 20
-                },
-                'year': '35/2014',
-                'tournament': 'Davis Cup, ISR-ARG',
-                'voted': true,
-                'vote_choose': 1
-            },
-            {
-                'id': 2,
-                'player_1': {
-                    id: 8,
-                    name: 'Betsy Abbas',
-                    avatar: 'Link avatar',
-                    win: 55,
-                    vote: 22
-                },
-                'player_2': {
-                    id: 5,
-                    name: 'Ivana Abramović',
-                    avatar: 'Link avatar',
-                    win: 48,
-                    vote: 17
-                },
-                'year': '35/2014',
-                'tournament': 'US Open',
-                'voted': false,
-                'vote_choose': 0
-            }
-        ];
-        res.json(result);
     }
 
     /**
@@ -360,6 +283,7 @@ function Get() {
                                     res.json(list_matches);
                                     return;
                                 }
+
                                 if (data.length > 0) {
                                     for (var _o in data) {
                                         data[_o].player_with = (data[_o].winner == data[_o].player_1 ? players[data[_o].player_2].name : players[data[_o].player_1].name);
@@ -371,6 +295,7 @@ function Get() {
                                 } else {
                                     // Crawl data history for this current two player
 
+                                    res.json(list_matches[refer]); return;
                                 }
                                 list_matches = list_matches[refer];
                                 res.json(list_matches);
@@ -613,42 +538,6 @@ function Get() {
                 // End if -----------------
             }
         });
-        return;
-
-        var result = {
-            'id': 1,
-            'year': '35/2014',
-            'tournament': 'US Open',
-            'voted': true,
-            'vote_choose': 1,
-            'player_1': {
-                id: 1,
-                name: 'Federer',
-                avatar: 'Link avatar',
-                win: 15,
-                vote: 20,
-                des: 'More info about player'
-            },
-            'player_2': {
-                id: 2,
-                name: 'Rafael Nadal',
-                avatar: 'Link avatar',
-                win: 15,
-                vote: 20,
-                des: 'More info about player'
-            },
-            'matches': [
-                {
-                    'time': '35/2012',
-                    'surface': 'hard',
-                    'tournament': 'US Ppen',
-                    'round': '342',
-                    'score': '4-6 7-6(4) 3-6',
-                    'win': 'Roger Federer'
-                }
-            ]
-        }
-        res.json(result);
     }
 
 
