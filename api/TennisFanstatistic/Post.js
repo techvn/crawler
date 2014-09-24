@@ -79,7 +79,7 @@ function Post() {
         /*1. check device_id has been exist
          2. Inser or update new device with properties
          3. Add new row for follow player*/
-        users.getDetail('`id`', '`device_id`="' + device_id + '"', function (result, err) {
+        users.UsersModel.getDetail('`id`', '`device_id`="' + device_id + '"', function (result, err) {
             if (err) {
                 res.json(err);
                 return;
