@@ -299,6 +299,8 @@ function Get() {
                                         delete data[_o].player_2;
                                         list_matches[refer].matches.push(data[_o]);
                                     }
+                                    list_matches = list_matches[refer];
+                                    res.json(list_matches);
                                 } else {
 
                                     pid_1 = list_matches[refer].player_1.id;
