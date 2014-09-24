@@ -121,14 +121,18 @@ function Crawler() {
      * @param res
      */
     self.getStats = function (req, res) {
+        var name_1 = req.query.name_1 || '';
+        var name_2 = req.query.name_2 || '';
+
+        // Load player_1, player_2 (id) and map_player_1_id, map_player_2_id (map id) from db by player name
         var player_1 = req.query.player_1 || 0;
         var player_2 = req.query.player_2 || 0;
         var map_player_1_id = req.query.map_1 || 0;
         var map_player_2_id = req.query.map_2 || 0;
-        var name_1 = req.query.name_1 || '';
-        var name_2 = req.query.name_2 || '';
 
-        if (name_1 == '') {
+
+
+        /*if (name_1 == '') {
             res.json({
                 'msg': 'Thieu tham so name_1'
             });
@@ -164,18 +168,20 @@ function Crawler() {
                 'msg': 'Thieu tham so map_2'
             });
             return;
-        }
+        }*/
         // ---------------
 
         var url = 'http://tennis.matchstat.com/index.php?ControllerName=Compare&Id_Player1='
             + map_player_1_id + '&Id_Player2=' + map_player_2_id;
-        console.log(url);
+        //console.log(url);
 
         tennisStat.LoadHeadToHead(url, function (head2head_data, err) {
             /*res.send(head2head_data);
              return;*/
             // Check has been history statistic
-            histories_statistic.HistoriesModel.getDetail('`id`', '`player_1`=' + player_1 + ' AND player_2=' + player_2, function (data_detail, err) {
+            histories_statistic.HistoriesModel.getDetail('`id`',
+                '(`player_1`=' + player_1 + ' AND `player_2`=' + player_2 + ') OR (`player_2`=' + player_1 + ' AND `player_1`=' + player_2 + ')',
+                function (data_detail, err) {
                 if (err) {
                     console.log(err);
                     return;
@@ -227,6 +233,7 @@ function Crawler() {
                     histories_statistic.HistoriesModel.insertSingle(result, function (histories_data, err) {
                         if (err) {
                             console.log(err);
+                            res.json(histories_data);
                             return;
                         }
                         for (var o in histories_data) {
@@ -244,6 +251,7 @@ function Crawler() {
                             if (err) {
                                 console.log(err);
                             }
+                            res.json(head2head_data);
                         })
                     })
                 }

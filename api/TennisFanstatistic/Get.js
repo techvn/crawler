@@ -5,12 +5,14 @@ var utils = require('./../../utils/Utils').Utils,
     voteModel = require('./../../model/TF_Votes'),
     playerModel = require('./../../model/TF_Player'),
     matchModel = require('./../../model/TF_Matches'),
-    historyModel = require('./../../model/TF_Histories'),
     users = require('./../../model/TF_Users'),
     usersFollow = require('./../../model/TF_UsersFollow'),
     news = require('./../../model/TF_News'),
     video = require('./../../model/TF_Video'),
-    tf_crawler = require('./Crawler').Crawler,
+    tennisStat = require('./../../utils/TennisMatchStat').TennisMatchStat,
+//histories_detail = require('./../../model/TF_HistoriesDetail'),
+//histories_statistic = require('./../../model/TF_Histories'),
+    historyModel = require('./../../model/TF_Histories'),
     historyDetailModel = require('./../../model/TF_HistoriesDetail');
 function Get() {
     var self = this;
@@ -44,7 +46,7 @@ function Get() {
 
         // If search action, send full player data
         if (action == 'search') {
-            field = '`id`,`name`,`avatar`,`birth`,`des`,`country`';
+            field = '`id`,`name`,`avatar`,`birth`,`des`,`country`,`twitter`';
         } else { // Send id, name for suggest
             field = '`id`,`name`';
         }
@@ -59,7 +61,7 @@ function Get() {
     self.getPlayerDetail = function (req, res) {
         // Load player
         var player_id = req.query.id || 0;
-        playerModel.PlayerModel.getDetail('id,name,avatar,birth,country,des', '`id`=' + player_id, function (data, err) {
+        playerModel.PlayerModel.getDetail('id,name,avatar,birth,country,des,twitter', '`id`=' + player_id, function (data, err) {
             var result = {};
             for (var o in data) {
                 result = data[o];
@@ -272,11 +274,11 @@ function Get() {
      */
     self.getHeadToHead = function (req, res) {
         // Get match detail by match id
-        var match_id = req.query.id || 0,
-            player_1 = req.query.player_1 || '',
-            player_2 = req.query.player_2 || '',
-            pid_1 = req.query.pid_1 || 0,
-            pid_2 = req.query.pid_2 || 0,
+        var match_id = req.query.id || 0, // id of match
+            player_1 = req.query.player_1 || '', // name of player 1
+            player_2 = req.query.player_2 || '', // name of player 2
+            pid_1 = req.query.pid_1 || 0, // id of player 1 on system
+            pid_2 = req.query.pid_2 || 0, // id of player 2 on system
             con = '';
         if (match_id) {
             con = '`id`=' + match_id;
@@ -291,7 +293,7 @@ function Get() {
                 // and return pid_2 for this player
 
             }
-            con = '(`player_1`="' + pid_1 + '" AND `player_1`="' + pid_2 + '")';
+            con = '(`player_1`="' + pid_1 + '" AND `player_2`="' + pid_2 + '") OR (`player_2`="' + pid_1 + '" AND `player_1`="' + pid_2 + '")';
         }
 
         matchModel.MatchModel.getList('*', con, 'id ASC', '1', function (list_matches, err) {
@@ -300,7 +302,7 @@ function Get() {
                 res.json(err);
                 return;
             }
-            if (list_matches.length > 0) {
+            if (list_matches.length > 0) { // Exist match, find history, if not found, add new and crawl data
                 // player id
                 var player_id = '', comma = '', total_voted_1 = 0, total_voted_2 = 0;
                 for (var o in list_matches) {
@@ -345,25 +347,257 @@ function Get() {
                                     res.json(list_matches);
                                     return;
                                 }
-                                for (var _o in data) {
-                                    data[_o].player_with = (data[_o].winner == data[_o].player_1 ? players[data[_o].player_2].name : players[data[_o].player_1].name);
-                                    data[_o].winner = players[data[_o].winner].name;
-                                    delete data[_o].player_1;
-                                    delete data[_o].player_2;
-                                    list_matches[o].matches.push(data[_o]);
+                                if (data.length > 0) {
+                                    for (var _o in data) {
+                                        data[_o].player_with = (data[_o].winner == data[_o].player_1 ? players[data[_o].player_2].name : players[data[_o].player_1].name);
+                                        data[_o].winner = players[data[_o].winner].name;
+                                        delete data[_o].player_1;
+                                        delete data[_o].player_2;
+                                        list_matches[refer].matches.push(data[_o]);
+                                    }
+                                } else {
+                                    // Crawl data history for this current two player
+
                                 }
-                                list_matches = list_matches[o];
+                                list_matches = list_matches[refer];
                                 res.json(list_matches);
                             }, o);
                         }
                     } else {
+                        // Crawl list match for history
                         list_matches = list_matches[o];
                         res.json(list_matches);
                     }
                 });
             } else {
-                // Empty data
-                res.json({});
+                //console.log('go here');
+                // ------- Crawl data history here
+                // 1. Load player id of tennis.matchstat.com
+                playerModel.PlayerModel.getList('`id`, `tennis_stat_id_map`,`name`,`avatar`,`win`,`des`', '`id` IN (' + pid_1 + ',' + pid_2 + ')', null, null,
+                    function (player, err) {
+                        if (err) {
+                            console.log(err);
+                            res.json({});
+                            return;
+                        }
+                        var map_id_1 = 0, map_id_2 = 0,
+                            head2head = { matches: [] }; // Data will be response
+                        if (player.length > 0) {
+                            var tmp_player = {};
+                            for (var o in player) {
+                                if (player[o].id == pid_1) {
+                                    map_id_1 = player[o].tennis_stat_id_map;
+                                    player_1 = player[o].name;
+                                    head2head['player_1'] = player[o];
+                                } else {
+                                    map_id_2 = player[o].tennis_stat_id_map;
+                                    player_2 = player[o].name;
+                                    head2head['player_2'] = player[o];
+                                }
+                                tmp_player[player[o].id] = player[o];
+                                //tmp_player[player[o].name] = player[o];
+                            }
+                            player = tmp_player;
+
+                            // Check has history
+                            historyModel.HistoriesModel.getDetail('`id`',
+                                '(`player_1`=' + pid_1 + ' AND `player_2`=' + pid_2 + ') OR (`player_2`=' + pid_1 + ' AND `player_1`=' + pid_2 + ')',
+                                function (history, err) {
+                                    if (err) {
+                                        console.log(err);
+                                        res.json(head2head);
+                                        return;
+                                    }
+                                    var histories_statistic_id = 0;
+                                    if (history.length == 0) { // Have no history
+                                        // 2. Crawl matches history
+                                        var url = 'http://tennis.matchstat.com/index.php?ControllerName=Compare&Id_Player1='
+                                            + map_id_1 + '&Id_Player2=' + map_id_2;
+
+                                        //console.log(url);
+
+                                        tennisStat.LoadHeadToHead(url, function (head2head_data, err) {
+                                            var result = {};
+                                            result.player_1 = pid_1;
+                                            result.player_2 = pid_2;
+
+                                            // Check win, lose by head2head_data
+                                            // ...........
+                                            result.player1_win = 0;
+                                            result.player2_win = 0;
+
+                                            // 3. Create new history statistic
+                                            historyModel.HistoriesModel.insertSingle(result, function (histories_data, err) {
+
+                                                if (err) {
+                                                    console.log(err);
+                                                    res.json({}); // Response data
+                                                    return;
+                                                }
+
+                                                histories_statistic_id = histories_data['insertId'];
+
+                                                // Add headToHead id for this data
+                                                for (var o in head2head_data) {
+                                                    head2head_data[o].head2head_id = histories_statistic_id;
+                                                    head2head_data[o].winner = utils.getWinner(player_1, player_2, head2head_data[o].score);
+
+                                                    // Delete key
+                                                    delete head2head_data[o].player_1;
+                                                    delete head2head_data[o].player_2;
+                                                }
+
+                                                // 4. Add histories detail for this match
+                                                historyDetailModel.HistoryDetailModel.insertMulti(head2head_data, function (data, err) {
+                                                    // Done
+                                                    if (err) {
+                                                        console.log(err);
+                                                        head2head['err'] = err;
+                                                        res.send(head2head); // Response data
+                                                        return;
+                                                    }
+
+                                                    // 5. List current match again from database
+                                                    var sql = 'SELECT b.`id`, b.`year`, b.`tournament`, b.`surface`, b.`round`, b.`score`, b.`winner`, a.`player_1`, a.`player_2` ' +
+                                                        'FROM `histories_statistic` AS a INNER JOIN `histories_detail` AS b ON a.`id`=b.`head2head_id` WHERE ' +
+                                                        '(a.`player_1`=' + pid_1 + ' AND a.`player_2`=' + pid_2 + ')' +
+                                                        ' OR (a.`player_2`=' + pid_1 + ' AND a.`player_1`=' + pid_2 + ') ORDER BY b.`id` ASC';
+
+                                                    historyModel.HistoriesModel.executeQuery(sql, function (data, err) {
+                                                        if (err) {
+                                                            console.log(err);
+                                                            res.json({}); // Response data
+                                                            return;
+                                                        }
+
+                                                        /*head2head.list = data;
+                                                         head2head.player = player;
+                                                         res.json(head2head); return;*/
+
+                                                        if (data.length > 0) {
+                                                            for (var _o in data) {
+                                                                data[_o].player_with = (
+                                                                    data[_o].winner == data[_o].player_1 ? player[data[_o].player_2].name : player[data[_o].player_1].name);
+                                                                //data[_o].winner = player[data[_o].winner].name;
+                                                                delete data[_o].player_1;
+                                                                delete data[_o].player_2;
+
+                                                                head2head.matches.push(data[_o]);
+                                                            }
+                                                        }
+                                                        // 6. Response data after crawl finished
+                                                        res.json(head2head);
+                                                        // -----------
+                                                    });
+                                                })
+                                            });
+                                        });
+                                    } else {
+                                        // Check have list match history
+                                        // List current match again from database
+                                        var sql = 'SELECT b.`id`, b.`year`, b.`tournament`, b.`surface`, b.`round`, b.`score`, b.`winner`, a.`player_1`, a.`player_2` ' +
+                                            'FROM `histories_statistic` AS a INNER JOIN `histories_detail` AS b ON a.`id`=b.`head2head_id` WHERE ' +
+                                            '(a.`player_1`=' + pid_1 + ' AND a.`player_2`=' + pid_2 + ')' +
+                                            ' OR (a.`player_2`=' + pid_1 + ' AND a.`player_1`=' + pid_2 + ') ORDER BY b.`id` ASC';
+
+                                        historyModel.HistoriesModel.executeQuery(sql, function (data, err) {
+                                            if (err) {
+                                                console.log(err);
+                                                res.json({}); // Response data
+                                                return;
+                                            }
+                                            if (data.length > 0) {
+                                                for (var _o in data) {
+                                                    data[_o].player_with = (
+                                                        data[_o].winner == data[_o].player_1 ? player[data[_o].player_2].name : player[data[_o].player_1].name);
+                                                    //data[_o].winner = player[data[_o].winner].name;
+                                                    delete data[_o].player_1;
+                                                    delete data[_o].player_2;
+
+                                                    head2head.matches.push(data[_o]);
+                                                }
+                                                // Response data after crawl finished
+                                                res.json(head2head);
+                                            } else {
+                                                // Crawl new data
+                                                // 2. Crawl matches history
+                                                var url = 'http://tennis.matchstat.com/index.php?ControllerName=Compare&Id_Player1='
+                                                    + map_id_1 + '&Id_Player2=' + map_id_2;
+
+                                                //console.log(url);
+
+                                                tennisStat.LoadHeadToHead(url, function (head2head_data, err) {
+
+                                                    for (var o in history) {
+                                                        histories_statistic_id = history[o].id;
+                                                        break;
+                                                    }
+
+                                                    // Add headToHead id for this data
+                                                    for (var o in head2head_data) {
+                                                        head2head_data[o].head2head_id = histories_statistic_id;
+                                                        head2head_data[o].winner = utils.getWinner(player_1, player_2, head2head_data[o].score);
+
+                                                        // Delete key
+                                                        delete head2head_data[o].player_1;
+                                                        delete head2head_data[o].player_2;
+                                                    }
+
+                                                    // 4. Add histories detail for this match
+                                                    historyDetailModel.HistoryDetailModel.insertMulti(head2head_data, function (data, err) {
+                                                        // Done
+                                                        if (err) {
+                                                            console.log(err);
+                                                            head2head['err'] = err;
+                                                            res.send(head2head); // Response data
+                                                            return;
+                                                        }
+
+                                                        // 5. List current match again from database
+                                                        var sql = 'SELECT b.`id`, b.`year`, b.`tournament`, b.`surface`, b.`round`, b.`score`, b.`winner`, a.`player_1`, a.`player_2` ' +
+                                                            'FROM `histories_statistic` AS a INNER JOIN `histories_detail` AS b ON a.`id`=b.`head2head_id` WHERE ' +
+                                                            '(a.`player_1`=' + pid_1 + ' AND a.`player_2`=' + pid_2 + ')' +
+                                                            ' OR (a.`player_2`=' + pid_1 + ' AND a.`player_1`=' + pid_2 + ') ORDER BY b.`id` ASC';
+
+                                                        historyModel.HistoriesModel.executeQuery(sql, function (data, err) {
+                                                            if (err) {
+                                                                console.log(err);
+                                                                res.json({}); // Response data
+                                                                return;
+                                                            }
+
+                                                            /*head2head.list = data;
+                                                             head2head.player = player;
+                                                             res.json(head2head); return;*/
+
+                                                            if (data.length > 0) {
+                                                                for (var _o in data) {
+                                                                    data[_o].player_with = (
+                                                                        data[_o].winner == data[_o].player_1 ? player[data[_o].player_2].name : player[data[_o].player_1].name);
+                                                                    //data[_o].winner = player[data[_o].winner].name;
+                                                                    delete data[_o].player_1;
+                                                                    delete data[_o].player_2;
+
+                                                                    head2head.matches.push(data[_o]);
+                                                                }
+                                                            }
+                                                            // 6. Response data after crawl finished
+                                                            res.json(head2head);
+                                                            // -----------
+                                                        });
+                                                    });
+                                                });
+                                            }
+                                            // -----------
+                                        });
+                                    }
+                                });
+                        } else {
+                            // Empty data
+                            res.json({});
+                        }
+                    });
+                // End if -----------------
             }
         });
         return;
@@ -412,14 +646,14 @@ function Get() {
             kw = req.query.kw || '',
             order = req.query.order || 'posted_time',
             order_type = req.query.order_type || 'DESC';
-            conn = '1=1';
+        conn = '1=1';
         if (kw) {
             conn = '`title` LIKE "%' + kw + '%" OR `brief` LIKE "%' + kw + '%"';
         }
 
-        news.NewsModel.getList('`id`,`title`,`thumb`,`brief`,`link`', conn, '`' + order + '` '  + order_type, limit, function (result, err) {
+        news.NewsModel.getList('`id`,`title`,`thumb`,`brief`,`link`', conn, '`' + order + '` ' + order_type, limit, function (result, err) {
             res.json(err || result);
-        })
+        });
 
         /*var result = [
          {
@@ -545,7 +779,6 @@ function Get() {
                 }, data);
             });
         }
-
     }
     self.getListFollow = function (req, res) {
         var device_id = req.query.device_id || '',
