@@ -69,7 +69,19 @@ function Get() {
             }
 
             result.matches = [];
-            result.news = [
+
+            var players = [], load_user = false, loaded_news = false, loaded_video = false;
+            news.NewsModel.getList('id,title,thumb,link', '`tag` LIKE "%' + result.name + '%"', '`posted_time` DESC', 5, function(listNews, err) {
+                result.news = listNews;
+                loaded_news = true;
+            });
+            video.VideoModel.getList('id,title,thumb,video,link',
+                '`title` LIKE "%'+result.name+'%" OR `brief` LIKE "%'+result.name+'%" OR `content` LIKE "%'+result.name+'%"',
+                '`posted_time` DESC', 5, function(listVideo, err) {
+                    result.video = listVideo;
+                    loaded_video = true;
+                });
+            /*result.news = [
                 {
                     id: 1, title: 'test', thumb: 'link image', link: 'Link origin of news'
                 },
@@ -84,10 +96,8 @@ function Get() {
                 {
                     id: 2, title: 'test video 2', thumb: 'link image of video 2', video : 'ID of youtube', link: 'Link origin of news 2'
                 }
-            ];
-            result.test = true;
-
-            var players = [], load_user = false;
+            ];*/
+            result.test = false;
             // Load matches in histories
             historyModel.HistoriesModel.getList('id,player_1,player_2', '`player_1`=' + player_id + ' OR `player_2`=' + player_id,
                 null, 'all', function (data, err, refer) {
@@ -128,7 +138,7 @@ function Get() {
                         load_user = true;
                     }
                     var timer = setTimeout(function () {
-                        if (inc == Object.keys(data).length & load_user) {
+                        if (inc == Object.keys(data).length & load_user & loaded_news & loaded_video) {
                             // Response data
 
                             if (result.matches.length > 0) {
