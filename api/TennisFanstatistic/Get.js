@@ -67,7 +67,20 @@ function Get() {
                 result = data[o];
                 break;
             }
+
             result.matches = [];
+            result.news = [{
+                id : 1, title: 'test', thumb : 'link image', link : 'Link origin of news'
+            }, {
+                id : 2, title: 'test 2', thumb : 'link image 2', link : 'Link origin of news 2'
+            }];
+            result.video = [{
+                id : 1, title: 'test video', thumb : 'link image of video', link : 'Link origin of news'
+            }, {
+                id : 2, title: 'test video 2', thumb : 'link image of video 2', link : 'Link origin of news 2'
+            }];
+            result.test = true;
+
             var players = [], load_user = false;
             // Load matches in histories
             historyModel.HistoriesModel.getList('id,player_1,player_2', '`player_1`=' + player_id + ' OR `player_2`=' + player_id,
