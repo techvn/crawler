@@ -77,11 +77,12 @@ function Crawler() {
      * @param req
      * @param res
      */
-    self.getMapPlayer = function (req, res) {
+    self.getMapPlayerOnTennisMatchStat = function (req, res) {
         var temp = 'http://tennis.matchstat.com/Player/',
             url = '';
         // Load all player not map
-        players.PlayerModel.getList('`id`, `name`', null, null, 9999, function (data, err) {
+        players.PlayerModel.getList('`id`, `name`', '(`tennis_stat_id_map` IS NULL OR `tennis_stat_id_map` = "")'
+            , null, 9999, function (data, err) {
             if (!err) {
                 for (var o in data) {
                     url = temp + escape(data[o].name);
@@ -90,15 +91,24 @@ function Crawler() {
                             console.log(err);
                             return;
                         }
-                        // Update player info
-                        var sql = 'UPDATE `' + players.PlayerObject().table + '` SET `tennis_stat_id_map`=' + result.tennis_stat_id_map
-                            + ', `birth`="' + result.birth + '",`gender`=' + result.gender + ' WHERE `id`=' + refer;
-                        /*result.sql = sql;
-                         res.json(result);*/
+                        if(result) {
+                            // Update player info
+                            var sql = 'UPDATE `' + players.PlayerObject(null).table
+                                + '` SET `tennis_stat_id_map`=' + result.tennis_stat_id_map
+                                //+ ', `birth`="' + result.birth
+                                //+ '",`gender`=' + result.gender
+                                + ' WHERE `id`=' + refer.id;
+                            /*result.sql = sql;
+                             res.json(result);*/
 
-                        players.PlayerModel.executeQuery(sql, function (data, err) {
-                        });
-                    }, data[o].id);
+                            console.log('"' + refer.name + '" is updated.')
+                            players.PlayerModel.executeQuery(sql, function (data, err) {
+                            });
+                        } else {
+                            console.log('"' + refer.name + '" not found.')
+                        }
+
+                    }, data[o]);
                 }
             }
             res.json(data);
@@ -265,7 +275,9 @@ function Crawler() {
                         break;
                     }
                     var sql = 'UPDATE `' + players.PlayerObject().table + '` SET `tennis_stat_id_map`=' + result.tennis_stat_id_map
-                        + ', `birth`="' + result.birth + ',`gender`=' + result.gender + '" WHERE `id`=' + player_id;
+                        //+ ', `birth`="' + result.birth
+                        //+ ', `gender`=' + result.gender
+                        + '" WHERE `id`=' + player_id;
                     players.PlayerModel.executeQuery(sql, function (data, err) {
                         if (!err) {
                             console.log('Update player success');
@@ -273,7 +285,8 @@ function Crawler() {
                     });
                 } else {
                     // Insert new player
-                    var sql = "INSERT IGNORE INTO `" + players.PlayerObject().table + "`(`name`,`tennis_stat_id_map`, `birth`)"
+                    var sql = "INSERT IGNORE INTO `" + players.PlayerObject().table
+                        + "`(`name`,`tennis_stat_id_map`, `birth`)"
                         + " VALUE('" + player_name + "','" + result.tennis_stat_id_map + "','" + result.birth + "')";
                     players.PlayerModel.executeQuery(sql, function (data, err) {
                         if (!err) {
@@ -344,7 +357,7 @@ function Crawler() {
             }
             news.NewsModel.insertMulti(result, function (result, err) {
                 console.log(err || result);
-            })
+            });
             res.json(data);
         });
         //news.NewsModel.getNews()
@@ -364,7 +377,7 @@ function Crawler() {
             }
             video.VideoModel.insertMulti(result, function (result, err) {
                 res.json(err || result);
-            })
+            });
             //res.json(result);
         });
     }
@@ -463,18 +476,18 @@ function Crawler() {
                                                         if (err) {
                                                             console.log(err);
                                                         } else {
-                                                            console.log((new Date().toString()) + ' Insert: ' +  refer.name);
+                                                            console.log((new Date().toUTCString()) + ' Insert: ' +  refer.name);
                                                         }
                                                     }, player);
                                                 }, player);
                                             } else {
-                                                console.log((new Date().toString()) + ' Update: ' + player.name);
+                                                console.log((new Date().toUTCString()) + ' Update: ' + player.name);
                                             }
 
                                         }, data[o]);
                                     }
                                 }
-                            });
+                            }, {});
                         }, timer * i, i);
 
                     }
@@ -506,12 +519,12 @@ function Crawler() {
                                         if (err) {
                                             console.log(err);
                                         } else {
-                                            console.log((new Date().toString()) + ' Insert: ' +  refer.name);
+                                            console.log((new Date().toUTCString()) + ' Insert: ' +  refer.name);
                                         }
                                     }, player);
                                 }, player);
                             } else {
-                                console.log((new Date().toString()) + ' Update: ' + player.name);
+                                console.log((new Date().toUTCString()) + ' Update: ' + player.name);
                             }
                         }, data[o]);
                     }
@@ -553,17 +566,17 @@ function Crawler() {
                                                         if (err) {
                                                             console.log(err);
                                                         } else {
-                                                            console.log((new Date().toString()) + ' Insert: ' + player.name);
+                                                            console.log((new Date().toUTCString()) + ' Insert: ' + player.name);
                                                         }
                                                     }, player);
                                                 }, player);
                                             } else {
-                                                console.log((new Date().toString()) + ' Update: ' + player.name);
+                                                console.log((new Date().toUTCString()) + ' Update: ' + player.name);
                                             }
                                         }, data[o]);
                                     }
                                 }
-                            });
+                            }, {});
                         }, timer * o, o);
                     }
                 }
@@ -594,12 +607,12 @@ function Crawler() {
                                         if (err) {
                                             console.log(err);
                                         } else {
-                                            console.log((new Date().toString()) + ' Insert: ' + player.name);
+                                            console.log((new Date().toUTCString()) + ' Insert: ' + player.name);
                                         }
                                     }, player);
                                 }, player);
                             } else {
-                                console.log('Update: ' + player.name);
+                                console.log((new Date().toUTCString()) + ' Update: ' + player.name);
                             }
                         }, data[o]);
                     }

@@ -250,6 +250,42 @@ var Utils = function () {
             firstDateOfWeek.getDate() + 1);
         ;
     }
+
+    /**
+     * Send mail
+     * @param config: from, to, subject, text, html
+     */
+    self.sendMail = function(config) {
+        if(config == null) {
+            config = {
+                from: "Tennis App Group <techvn2012@gmail.com>",
+                to: "to@gmail.com",
+                subject: "Send Email Using Node.js",
+                text: "Node.js New world for me",
+                html: "<b>Node.js New world for me</b>"
+            };
+        }
+        var mailer = require("nodemailer");
+
+        // Use Smtp Protocol to send Email
+        var smtpTransport = mailer.createTransport("SMTP",{
+            service: "Gmail",
+            auth: {
+                user: "techvn2012@gmail.com",
+                pass: "tech2012"
+            }
+        });
+
+        smtpTransport.sendMail(config, function(error, response){
+            if(error){
+                console.log(error);
+            }else{
+                console.log("Message sent: " + response.message);
+            }
+
+            smtpTransport.close();
+        });
+    }
 }
 
 /*var today = new Date();

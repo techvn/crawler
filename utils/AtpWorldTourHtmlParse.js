@@ -77,7 +77,10 @@ function AtpWorldTourHtmlParse() {
                     player.avatar = domain + $('#playerBioHeadShot img').attr('src');
                     try {
                         // Remove some link in profile
-                        player.des = $('#personal').html().replace(/'/g, "\\'");
+                        player.des = $('#personal').html();
+                        if(player.des) {
+                            player.des = player.des.replace(/'/g, "\\'");
+                        }
                         if($('#playerBioInfoList li:nth-child(1)').text().indexOf('Age') > -1) {
                             player.birth = self.convertBirth($('#playerBioInfoList li:nth-child(1)').text().match(/\((.*?)\)/)[1]);
                         } else

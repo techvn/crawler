@@ -6,9 +6,11 @@ var utils = require('./../../utils/Utils').Utils,
     playerModel = require('./../../model/TF_Player'),
     matchModel = require('./../../model/TF_Matches'),
     historyModel = require('./../../model/TF_Histories'),
+    users = require('./../../model/TF_Users'),
+    usersFollow = require('./../../model/TF_UsersFollow'),
     news = require('./../../model/TF_News'),
     video = require('./../../model/TF_Video'),
-//crawler = require('Crawler'),
+    tf_crawler = require('./Crawler').Crawler,
     historyDetailModel = require('./../../model/TF_HistoriesDetail');
 function Get() {
     var self = this;
@@ -511,7 +513,61 @@ function Get() {
          res.json(result);*/
     }
 
-    // Check user voted or not by user_id, match_id and player
+    // Follow -------------
+    self.getHasFollow = function (req, res) {
+        var device_id = req.query.device_id || '',
+            player_id = req.query.player_id || 0,
+            user_id = req.query.user_id || 0;
+
+        if (user_id == 0) {
+            users.UsersModel.getDetail('*', "`device_id`='" + device_id + "'", function (data, err) {
+                if (err || data.length == 0) {
+                    console.log(err);
+                    res.json({result: 0, message: 'User can\'t found'});
+                    return;
+                }
+                for (var o in data) {
+                    data = data[o];
+                }
+                usersFollow.UsersFollowModel.getDetail('`id`', function (data, err, user) {
+                    if (err) {
+                        console.log(err);
+                        res.json({result: 0, message: 'Hasn\'t followed'});
+                        return;
+                    }
+                    if (data.length == 0) {
+                        res.json({result: 0, message: 'Hasn\'t followed'});
+                        return;
+                    }
+                    res.json({result: 1, message: user.email});
+                }, data);
+            });
+        }
+
+    }
+    self.getListFollow = function (req, res) {
+        var device_id = req.query.device_id || '',
+            user_id = req.query.user_id || 0;
+        users.UsersModel.getDetail('`id`', '`device_id`="' + device_id + '"', function (data, err) {
+            if (data.length == 0 || err) {
+                console.log(err);
+                res.json([]);
+                return;
+            }
+            // Get first element in array
+            for (var o in data) {
+                data = data[o];
+            }
+            var sql = "SELECT b.`id`, b.`name`, b.`avatar`, b.`twitter` " +
+                "FROM `users_follow` AS a INNER JOIN `players` AS b ON a.`player_id` = b.`id` " +
+                "WHERE a.`user_id`=" + data.id;
+            usersFollow.UsersFollowModel.executeQuery(sql, function (result, err) {
+                res.json(err ? [] : result);
+            });
+        });
+    }
+
+    // Check user voted or not by user_id, match_id and player ----------------
     self.getCheckUserVote = function (req, res) {
         var result = {};
         result['voted'] = true;

@@ -43,7 +43,7 @@ function TennisNewsHtmlParse() {
                         if(inc == $('.has-thumb').length) {
                             callback(data, null);
                         }
-                    }, 250);
+                    }, 100);
 
                     /*try {
                         callback(data, null);
@@ -64,6 +64,13 @@ function TennisNewsHtmlParse() {
 
                     // Get content here
                     refer.content = $('article.full').find('div.text').text().replace(/'/g, "\\'");
+                    var tags = '', comma = '';
+                    $('ul.tags li').each(function(index) {
+                        if(index == 0) return;
+                        tags += comma + $(this).text();
+                        comma = ',';
+                    });
+                    refer.tag = tags;
 
                     callback(refer, null);
                 }
