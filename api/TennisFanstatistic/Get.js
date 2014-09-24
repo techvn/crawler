@@ -410,12 +410,14 @@ function Get() {
 
         var limit = req.query.limit || '0,10',
             kw = req.query.kw || '',
+            order = req.query.order || 'posted_time',
+            order_type = req.query.order_type || 'DESC';
             conn = '1=1';
         if (kw) {
             conn = '`title` LIKE "%' + kw + '%" OR `brief` LIKE "%' + kw + '%"';
         }
 
-        news.NewsModel.getList('`id`,`title`,`thumb`,`brief`,`link`', conn, '`id` DESC', limit, function (result, err) {
+        news.NewsModel.getList('`id`,`title`,`thumb`,`brief`,`link`', conn, '`' + order + '` '  + order_type, limit, function (result, err) {
             res.json(err || result);
         })
 
