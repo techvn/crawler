@@ -346,7 +346,10 @@ function Crawler() {
     // ------------------------------
 
     self.getNews = function (req, res) {
-        var url = 'http://www.tennis.com/more-subchannel-articles/breaking-news/0/100/';
+        var start = req.query.start || 0,
+            end = req.query.end || 100,
+            url = 'http://www.tennis.com/more-subchannel-articles/breaking-news/' + start + '/' + end + '/';
+
         tennis_news.getTennisNews(url, function (data, err) {
             var result = [];
             // Revert data key
