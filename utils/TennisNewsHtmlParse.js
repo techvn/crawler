@@ -63,7 +63,7 @@ function TennisNewsHtmlParse() {
                     $ = cheerio.load(result.body);
 
                     // Get content here
-                    refer.content = $('article.full').find('div.text').text().replace(/'/g, "\\'");
+                    refer.content = $('article.full').find('div.text').text().replace(/'/g, "\\'").trim();
                     var tags = '', comma = '';
                     $('ul.tags li').each(function(index) {
                         if(index == 0) return;
