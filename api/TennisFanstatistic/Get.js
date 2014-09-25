@@ -345,7 +345,7 @@ function Get() {
                                                     // Add headToHead id for this data
                                                     for (var o in head2head_data) {
                                                         head2head_data[o].head2head_id = histories_statistic_id;
-                                                        head2head_data[o].winner = utils.getWinner(player_1, player_2, head2head_data[o].score);
+                                                        head2head_data[o].winner = utils.getWinner(pid_1, pid_2, head2head_data[o].score);
 
                                                         // Delete key
                                                         delete head2head_data[o].player_1;
@@ -411,7 +411,7 @@ function Get() {
                                                         // Add headToHead id for this data
                                                         for (var o in head2head_data) {
                                                             head2head_data[o].head2head_id = histories_statistic_id;
-                                                            head2head_data[o].winner = utils.getWinner(player_1, player_2, head2head_data[o].score);
+                                                            head2head_data[o].winner = utils.getWinner(pid_1, pid_2, head2head_data[o].score);
 
                                                             // Delete key
                                                             delete head2head_data[o].player_1;
@@ -543,7 +543,7 @@ function Get() {
                                                 // Add headToHead id for this data
                                                 for (var o in head2head_data) {
                                                     head2head_data[o].head2head_id = histories_statistic_id;
-                                                    head2head_data[o].winner = utils.getWinner(player_1, player_2, head2head_data[o].score);
+                                                    head2head_data[o].winner = utils.getWinner(pid_1, pid_2, head2head_data[o].score);
 
                                                     // Delete key
                                                     delete head2head_data[o].player_1;
@@ -639,7 +639,7 @@ function Get() {
                                                     // Add headToHead id for this data
                                                     for (var o in head2head_data) {
                                                         head2head_data[o].head2head_id = histories_statistic_id;
-                                                        head2head_data[o].winner = utils.getWinner(player_1, player_2, head2head_data[o].score);
+                                                        head2head_data[o].winner = utils.getWinner(pid_1, pid_2, head2head_data[o].score);
 
                                                         // Delete key
                                                         delete head2head_data[o].player_1;
