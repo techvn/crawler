@@ -304,7 +304,7 @@ function Get() {
                                 if (data.length > 0) {
                                     for (var _o in data) {
                                         data[_o].player_with = (data[_o].winner == data[_o].player_1 ? players[data[_o].player_2].name : players[data[_o].player_1].name);
-                                        //data[_o].winner = players[data[_o].winner].name;
+                                        data[_o].winner = (players[data[_o].winner] != undefined ? players[data[_o].winner].name : '');
                                         delete data[_o].player_1;
                                         delete data[_o].player_2;
                                         list_matches[refer].matches.push(data[_o]);
@@ -380,7 +380,7 @@ function Get() {
                                                                 for (var _o in data) {
                                                                     data[_o].player_with = (
                                                                         data[_o].winner == data[_o].player_1 ? players[data[_o].player_2].name : players[data[_o].player_1].name);
-                                                                    //data[_o].winner = player[data[_o].winner].name;
+                                                                    data[_o].winner = (players[data[_o].winner] != undefined ? players[data[_o].winner].name : '');
                                                                     delete data[_o].player_1;
                                                                     delete data[_o].player_2;
 
@@ -445,7 +445,7 @@ function Get() {
                                                                     for (var _o in data) {
                                                                         data[_o].player_with = (
                                                                             data[_o].winner == data[_o].player_1 ? players[data[_o].player_2].name : players[data[_o].player_1].name);
-                                                                        //data[_o].winner = player[data[_o].winner].name;
+                                                                        data[_o].winner = (players[data[_o].winner] != undefined ? players[data[_o].winner].name : '');
                                                                         delete data[_o].player_1;
                                                                         delete data[_o].player_2;
 
@@ -581,7 +581,7 @@ function Get() {
                                                             for (var _o in data) {
                                                                 data[_o].player_with = (
                                                                     data[_o].winner == data[_o].player_1 ? player[data[_o].player_2].name : player[data[_o].player_1].name);
-                                                                //data[_o].winner = player[data[_o].winner].name;
+                                                                data[_o].winner = (player[data[_o].winner] != undefined ? player[data[_o].winner].name : '');
                                                                 delete data[_o].player_1;
                                                                 delete data[_o].player_2;
 
@@ -613,7 +613,7 @@ function Get() {
                                                 for (var _o in data) {
                                                     data[_o].player_with = (
                                                         data[_o].winner == data[_o].player_1 ? player[data[_o].player_2].name : player[data[_o].player_1].name);
-                                                    //data[_o].winner = player[data[_o].winner].name;
+                                                    data[_o].winner = (player[data[_o].winner] != undefined ? player[data[_o].winner].name : '');
                                                     delete data[_o].player_1;
                                                     delete data[_o].player_2;
 
@@ -677,7 +677,7 @@ function Get() {
                                                                 for (var _o in data) {
                                                                     data[_o].player_with = (
                                                                         data[_o].winner == data[_o].player_1 ? player[data[_o].player_2].name : player[data[_o].player_1].name);
-                                                                    //data[_o].winner = player[data[_o].winner].name;
+                                                                    data[_o].winner = (player[data[_o].winner] != undefined ? player[data[_o].winner].name : '');
                                                                     delete data[_o].player_1;
                                                                     delete data[_o].player_2;
 
