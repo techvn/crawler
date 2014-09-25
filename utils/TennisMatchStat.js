@@ -104,9 +104,9 @@ function TennisMatchStat() {
                             var year_tournament = $($(this).find('td')[0]).text().split(/\s/);
                             __result[index].year = year_tournament[0];
                             year_tournament.splice(0, 1);
-                            __result[index].tournament = year_tournament.join(' ').replace(/,/g, "\\'");
+                            __result[index].tournament = year_tournament.join(' ').replace(/'/g, "\\'");
                         } else {
-                            __result[index].tournament = __result[index - 1].tournament.replace(/,/g, "\\'");
+                            __result[index].tournament = __result[index - 1].tournament.replace(/'/g, "\\'");
                             __result[index].year = __result[index - 1].year;
                         }
                         __result[index].player_1 = $($(this).find('td')[2]).text().replace(/'/i, "\\'");
