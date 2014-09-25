@@ -97,8 +97,8 @@ function Crawler() {
                             // Update player info
                             var sql = 'UPDATE `' + players.PlayerObject(null).table
                                 + '` SET `tennis_stat_id_map`=' + result.tennis_stat_id_map
-                                //+ ', `birth`="' + result.birth
-                                //+ '",`gender`=' + result.gender
+                                + ', `birth`="' + result.birth
+                                + '",`gender`=' + result.gender
                                 + ' WHERE `id`=' + refer.id;
                             /*result.sql = sql;
                              res.json(result);*/
