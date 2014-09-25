@@ -285,8 +285,8 @@ function Crawler() {
                         break;
                     }
                     var sql = 'UPDATE `' + players.PlayerObject().table + '` SET `tennis_stat_id_map`=' + result.tennis_stat_id_map
-                        //+ ', `birth`="' + result.birth
-                        //+ ', `gender`=' + result.gender
+                        + ', `birth`="' + result.birth
+                        + ', `gender`=' + result.gender
                         + '" WHERE `id`=' + player_id;
                     players.PlayerModel.executeQuery(sql, function (data, err) {
                         if (!err) {
@@ -296,8 +296,8 @@ function Crawler() {
                 } else {
                     // Insert new player
                     var sql = "INSERT IGNORE INTO `" + players.PlayerObject().table
-                        + "`(`name`,`tennis_stat_id_map`, `birth`)"
-                        + " VALUE('" + player_name + "','" + result.tennis_stat_id_map + "','" + result.birth + "')";
+                        + "`(`name`,`tennis_stat_id_map`, `birth`, `gender`)"
+                        + " VALUE('" + player_name + "','" + result.tennis_stat_id_map + "','" + result.birth + "'," + result.gender +")";
                     players.PlayerModel.executeQuery(sql, function (data, err) {
                         if (!err) {
                             console.log('Add new player success');
