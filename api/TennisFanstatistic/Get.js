@@ -279,7 +279,13 @@ function Get() {
                             var voted = 0;
                             if (list_user[o].id == pid_1) {
                                 voted = total_voted_1;
-                            } else voted = total_voted_2;
+                                // Assign player name to check winner (associate with head2head_data crawled)
+                                player_1 = list_user[o].name;
+                            } else {
+                                voted = total_voted_2;
+                                // Assign player name to check winner (associate with head2head_data crawled)
+                                player_2 = list_user[o].name;
+                            }
                             // Load vote num here
                             list_user[o].vote = voted;
                             players[list_user[o].id] = list_user[o];
