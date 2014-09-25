@@ -155,7 +155,7 @@ function Post() {
                     for (var o in data) {
                         data = data[o];
                     }
-                    usersFollow.UsersFollowModel.executeQuery("DELETE * FROM `" + usersFollow.UsersFollowObject(null).table
+                    usersFollow.UsersFollowModel.executeQuery("DELETE FROM `" + usersFollow.UsersFollowObject(null).table
                         + "` WHERE `user_id`=" + data.id + " AND `player_id`=" + player_id
                         , function (data, err) {
                             if (err) {

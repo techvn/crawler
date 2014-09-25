@@ -460,7 +460,7 @@ function Crawler() {
 
                 // Re-crawl with other pages
                 if (player_link) {
-                    var timer = 15000; // 15 seconds
+                    var timer = 30000; // 30 seconds
                     for (var i in player_link) {
                         setTimeout(function (obj) {
                             atpWorld.Rank(player_link[obj], function (data, err) {
@@ -551,7 +551,7 @@ function Crawler() {
 
                 // Check has link continue crawl
                 if (refer) {
-                    var timer = 15000; // 15 seconds
+                    var timer = 30000; // 30 seconds
                     for (var o in refer) {
                         setTimeout(function (obj) {
                             wtaWorld.Rank(refer[obj], function (data, err, refer) {
