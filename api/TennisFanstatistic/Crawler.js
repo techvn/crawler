@@ -25,6 +25,8 @@ function Crawler() {
     self.getMatchToday = function (req, res) {
         var url = 'http://tennis.matchstat.com/AllFixtures/';
         tennisStat.LoadMatchToday(url, function (data, error) {
+            //res.json(data); return;
+
             if (data.length > 0) {
                 console.log('start: ' + new Date().toTimeString());
                 // Check insert or get id of player
@@ -38,7 +40,6 @@ function Crawler() {
                     player_2 = {name: data[o].player_2};
                     __players.push(player_2);
                 }
-
                 // Insert all player
                 players.PlayerModel.insertMulti(__players, function (__data, err) {
                     // Load id of this players
@@ -53,6 +54,7 @@ function Crawler() {
                         for (var o in __data) {
                             __players[__data[o].name] = __data[o].id;
                         }
+
                         // Replace name with id of player
                         for (var o in data) {
                             if (typeof __players[data[o].player_1] !== 'undefined') {

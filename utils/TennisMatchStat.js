@@ -106,7 +106,7 @@ function TennisMatchStat() {
                             year_tournament.splice(0, 1);
                             __result[index].tournament = year_tournament.join(' ');
                         } else {
-                            __result[index].tournament = __result[index - 1].tournament;
+                            __result[index].tournament = __result[index - 1].tournament.replace(/,/g, "\\'");
                             __result[index].year = __result[index - 1].year;
                         }
                         __result[index].player_1 = $($(this).find('td')[2]).text().replace(/'/i, "\\'");
