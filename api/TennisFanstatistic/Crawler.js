@@ -91,6 +91,7 @@ function Crawler() {
                     tennisStat.LoadDetailPlayer(url, function (result, err, refer) {
                         if (err) {
                             console.log(err);
+                            res.json(err);
                             return;
                         }
                         if(result) {

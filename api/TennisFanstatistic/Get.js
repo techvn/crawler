@@ -904,8 +904,11 @@ function Get() {
             }
             var sql = "SELECT b.`id`, b.`name`, b.`avatar`, b.`twitter` " +
                 "FROM `users_follow` AS a INNER JOIN `players` AS b ON a.`player_id` = b.`id` " +
-                "WHERE b.`user_id`=" + data.id;
+                "WHERE a.`user_id`=" + data.id;
             usersFollow.UsersFollowModel.executeQuery(sql, function (result, err) {
+                if(err) {
+                    console.log(err);
+                }
                 res.json(err ? [] : result);
             });
         });

@@ -63,7 +63,7 @@ function WtaTennisHtmlParse() {
                         $('#biography h2').remove();
                         player.des = $('#biography').html().replace(/'/g, "\\'");
                         player.gender = 0;
-                        player.avatar = $('.player-bio img.playerImage').attr('src');
+                        player.avatar = domain + $('.player-bio img.playerImage').attr('src');
                     } catch (e) {
                     }
 
