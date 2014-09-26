@@ -335,26 +335,34 @@ function Crawler() {
         var url = 'http://en.wikipedia.org/wiki/',
             player = req.query.name,
             player_id = req.query.player_id || 0,
-            renderJson = req.query.renderJson || true;
+            renderJson = req.query.renderJson;
+        if(renderJson == undefined) { renderJson = true; }
+
         wiki.getPlayerInfo(url + player.replace(/\s/i, '_'), function (data, err) {
-            // Update data
-            var sql = "UPDATE `" + players.PlayerObject(null).table
-                + "` SET `avatar`='" + data.avatar
-                + "', `country`='" + data.country
-                + "', `des`='" + data.des.replace(/['ˈ]/g, "\\'")
-                + "' WHERE " + (player_id ? "`id`=" + player_id : '`name`="' + player + '"');
-            //res.send(sql); return;
-            players.PlayerModel.executeQuery(sql, function (data, err) {
-                if (err) {
-                    console.log(err);
-                }
-                console.log(renderJson + ': option');
+            //console.log(req.query);
+            if(typeof data.country != 'undefined') {
+                // Update data
+                var sql = "UPDATE `" + players.PlayerObject(null).table
+                    + "` SET `avatar`='" + data.avatar
+                    + "', `country`='" + data.country
+                    + "', `des`='" + data.des.replace(/['ˈ]/g, "\\'")
+                    + "' WHERE " + (player_id ? "`id`=" + player_id : '`name`="' + player + '"');
+                players.PlayerModel.executeQuery(sql, function (data, err) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    console.log(renderJson + ': option');
+                    if (!renderJson) {
+                        return;
+                    }
+                    res.json(data);
+                });
+            } else {
                 if (!renderJson) {
                     return;
                 }
                 res.json(data);
-            })
-            //res.send(data);
+            }
         });
 
     }
