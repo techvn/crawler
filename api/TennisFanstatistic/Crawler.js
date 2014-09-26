@@ -81,6 +81,8 @@ function Crawler() {
      */
     self.getMapPlayerOnTennisMatchStat = function (req, res) {
         var temp = 'http://tennis.matchstat.com/Player/',
+            birth = req.query.birth || 0, // if 1 then update birth
+            gender = req.query.gender || 0, // if 1 then update gender
             url = '';
         // Load all player not map
         players.PlayerModel.getList('`id`, `name`', '(`tennis_stat_id_map` IS NULL OR `tennis_stat_id_map` = "")'
@@ -98,13 +100,13 @@ function Crawler() {
                             // Update player info
                             var sql = 'UPDATE `' + players.PlayerObject(null).table
                                 + '` SET `tennis_stat_id_map`=' + result.tennis_stat_id_map
-                                + ', `birth`="' + result.birth
-                                + '",`gender`=' + result.gender
+                                + (birth ? ', `birth`="' + result.birth : '')
+                                + (gender ? '",`gender`=' + result.gender : '')
                                 + ' WHERE `id`=' + refer.id;
                             /*result.sql = sql;
                              res.json(result);*/
 
-                            console.log('"' + refer.name + '" is updated.')
+                            console.log('"' + refer.name + '" is updated. SQL: ' + sql);
                             players.PlayerModel.executeQuery(sql, function (data, err) {
                             });
                         } else {
@@ -332,12 +334,15 @@ function Crawler() {
     self.getPlayerInfoOnWiki = function (req, res) {
         var url = 'http://en.wikipedia.org/wiki/',
             player = req.query.name,
-            player_id = req.query.player_id,
+            player_id = req.query.player_id || 0,
             renderJson = req.query.renderJson || true;
         wiki.getPlayerInfo(url + player.replace(/\s/i, '_'), function (data, err) {
             // Update data
-            var sql = "UPDATE `" + players.PlayerObject().table
-                + "` SET `avatar`='" + data.avatar + "', `country`='" + data.country + "', `des`='" + data.des.replace(/['ˈ]/g, "\\'") + "' WHERE `id`=" + player_id;
+            var sql = "UPDATE `" + players.PlayerObject(null).table
+                + "` SET `avatar`='" + data.avatar
+                + "', `country`='" + data.country
+                + "', `des`='" + data.des.replace(/['ˈ]/g, "\\'")
+                + "' WHERE " + (player_id ? "`id`=" + player_id : '`name`="' + player + '"');
             //res.send(sql); return;
             players.PlayerModel.executeQuery(sql, function (data, err) {
                 if (err) {

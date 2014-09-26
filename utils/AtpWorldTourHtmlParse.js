@@ -33,7 +33,7 @@ function AtpWorldTourHtmlParse() {
                             str_name += space + __name[i].trim();
                             space = ' ';
                         }
-                        player[index].name = str_name.trim();
+                        player[index].name = str_name.trim().replace(/'/g, "\\'");
                         // Remove un-use
                         $(this).find('td:nth-child(1)').find('a').remove();
                         $(this).find('td:nth-child(1)').find('span').remove();
@@ -71,23 +71,25 @@ function AtpWorldTourHtmlParse() {
             {
                 'uri': url,
                 'callback': function (error, result, $) {
-                    $ = cheerio.load(result.body);
                     var player = {};
                     player.gender = 1;
-                    player.avatar = domain + $('#playerBioHeadShot img').attr('src');
                     try {
-                        // Remove some link in profile
-                        player.des = $('#personal').html();
-                        if(player.des) {
-                            player.des = player.des.replace(/'/g, "\\'");
+                        $ = cheerio.load(result.body);
+                        player.avatar = domain + $('#playerBioHeadShot img').attr('src');
+                        try {
+                            // Remove some link in profile
+                            player.des = $('#personal').html();
+                            if(player.des) {
+                                player.des = player.des.replace(/'/g, "\\'");
+                            }
+                            if($('#playerBioInfoList li:nth-child(1)').text().indexOf('Age') > -1) {
+                                player.birth = self.convertBirth($('#playerBioInfoList li:nth-child(1)').text().match(/\((.*?)\)/)[1]);
+                            } else
+                                player.birth = self.convertBirth($('#playerBioInfoList li:nth-child(2)').text().match(/\((.*?)\)/)[1]);
+                        } catch (e) {
+                            console.log(e);
                         }
-                        if($('#playerBioInfoList li:nth-child(1)').text().indexOf('Age') > -1) {
-                            player.birth = self.convertBirth($('#playerBioInfoList li:nth-child(1)').text().match(/\((.*?)\)/)[1]);
-                        } else
-                            player.birth = self.convertBirth($('#playerBioInfoList li:nth-child(2)').text().match(/\((.*?)\)/)[1]);
-                    } catch (e) {
-                        console.log(e);
-                    }
+                    } catch(e) { }
 
                     callback(player, null, refer);
                 }
@@ -95,6 +97,11 @@ function AtpWorldTourHtmlParse() {
         ]);
     }
 
+    /**
+     * Convert month to string
+     * @param str dd-mm-yyyy
+     * @returns {string}
+     */
     self.convertBirth = function (str) {
         var month = {
             '01': 'Jan',
