@@ -309,6 +309,12 @@ function Get() {
 
                                 if (data.length > 0) {
                                     for (var _o in data) {
+                                        // Count win score for user
+                                        if(list_matches[refer].player_1.id == data[_o].winner) {
+                                            list_matches[refer].player_1.win++;
+                                        } else {
+                                            list_matches[refer].player_2.win++;
+                                        }
                                         data[_o].player_with = (data[_o].winner == data[_o].player_1 ? players[data[_o].player_2].name : players[data[_o].player_1].name);
                                         data[_o].winner = (players[data[_o].winner] != undefined ? players[data[_o].winner].name : '');
                                         delete data[_o].player_1;
@@ -393,6 +399,13 @@ function Get() {
                                                             list_matches[refer].matches = [];
                                                             if (data.length > 0) {
                                                                 for (var _o in data) {
+                                                                    // Count win score for user
+                                                                    if(list_matches[refer].player_1.id == data[_o].winner) {
+                                                                        list_matches[refer].player_1.win++;
+                                                                    } else {
+                                                                        list_matches[refer].player_2.win++;
+                                                                    }
+
                                                                     data[_o].player_with = (
                                                                         data[_o].winner == data[_o].player_1 ? players[data[_o].player_2].name : players[data[_o].player_1].name);
                                                                     data[_o].winner = (players[data[_o].winner] != undefined ? players[data[_o].winner].name : '');
@@ -467,6 +480,14 @@ function Get() {
                                                                 list_matches[refer].matches = [];
                                                                 if (data.length > 0) {
                                                                     for (var _o in data) {
+
+                                                                        // Count win score for user
+                                                                        if(list_matches[refer].player_1.id == data[_o].winner) {
+                                                                            list_matches[refer].player_1.win++;
+                                                                        } else {
+                                                                            list_matches[refer].player_2.win++;
+                                                                        }
+
                                                                         data[_o].player_with = (
                                                                             data[_o].winner == data[_o].player_1 ? players[data[_o].player_2].name : players[data[_o].player_1].name);
                                                                         data[_o].winner = (players[data[_o].winner] != undefined ? players[data[_o].winner].name : '');
@@ -612,6 +633,12 @@ function Get() {
 
                                                         if (data.length > 0) {
                                                             for (var _o in data) {
+                                                                // Count win score for user
+                                                                if(head2head.player_1.id == data[_o].winner) {
+                                                                    head2head.player_1.win++;
+                                                                } else {
+                                                                    head2head.player_2.win++;
+                                                                }
                                                                 data[_o].player_with = (
                                                                     data[_o].winner == data[_o].player_1 ? player[data[_o].player_2].name : player[data[_o].player_1].name);
                                                                 data[_o].winner = (player[data[_o].winner] != undefined ? player[data[_o].winner].name : '');
@@ -644,6 +671,12 @@ function Get() {
                                             }
                                             if (data.length > 0) {
                                                 for (var _o in data) {
+                                                    // Count win score for user
+                                                    if(head2head.player_1.id == data[_o].winner) {
+                                                        head2head.player_1.win++;
+                                                    } else {
+                                                        head2head.player_2.win++;
+                                                    }
                                                     data[_o].player_with = (
                                                         data[_o].winner == data[_o].player_1 ? player[data[_o].player_2].name : player[data[_o].player_1].name);
                                                     data[_o].winner = (player[data[_o].winner] != undefined ? player[data[_o].winner].name : '');
@@ -717,6 +750,12 @@ function Get() {
 
                                                             if (data.length > 0) {
                                                                 for (var _o in data) {
+                                                                    // Count win score for user
+                                                                    if(head2head.player_1.id == data[_o].winner) {
+                                                                        head2head.player_1.win++;
+                                                                    } else {
+                                                                        head2head.player_2.win++;
+                                                                    }
                                                                     data[_o].player_with = (
                                                                         data[_o].winner == data[_o].player_1 ? player[data[_o].player_2].name : player[data[_o].player_1].name);
                                                                     data[_o].winner = (player[data[_o].winner] != undefined ? player[data[_o].winner].name : '');
