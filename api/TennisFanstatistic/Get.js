@@ -148,7 +148,7 @@ function Get() {
                                         /*result.matches[o].winner = utils.getWinner(player_id, result.matches[o].player_with, result.matches[o].score);
                                          var sql = 'UPDATE `' + historyDetailModel.HistoryDetailObject().table + '` SET `winner`=' + result.matches[o].winner + ' WHERE `id`=' + result.matches[o].id;
                                          historyDetailModel.HistoryDetailModel.executeQuery(sql, function(data, err) { });*/
-                                        result.matches[o].winner = (result.matches[o].winner = player_id ? true : false);
+                                        result.matches[o].winner = (result.matches[o].winner == player_id ? true : false);
                                     }
                                 }
                             }
